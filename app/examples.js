@@ -1025,7 +1025,13 @@ COUNT:  MOV     AL,CL
         ORG     0100H
         INCLUDE PATCALLS.INC
 
-        ; Port 1 init: bit 5 = output (piezo)
+        ; Full MUART initialization (required for physical hardware)
+        MOV     AL,0FFH
+        OUT     UCRREG1,AL
+        OUT     UCRREG2,AL
+        OUT     UCRREG3,AL
+        OUT     UMODEREG,AL
+        ; Port 1 direction: bit 5 = output (piezo toggle)
         MOV     AL,20H
         OUT     UPORT1CTL,AL
 

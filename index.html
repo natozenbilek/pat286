@@ -84,6 +84,8 @@
           <button class="b" onclick="serialTermSend()">Send</button>
         </div>
         <div class="probe-btns" style="display:flex;gap:3px;margin-top:3px;flex-wrap:wrap">
+          <button class="b" onclick="probeScanPorts()" title="Scan ALL I/O ports" style="font-size:9px;padding:2px 5px;background:var(--accent)">&#128270; Port Scan</button>
+          <button class="b" onclick="probeBruteDisplay()" title="Try every port pair for 8279" style="font-size:9px;padding:2px 5px;background:var(--accent)">&#128270; Brute Display</button>
           <button class="b" onclick="probeDisplay()" title="Test KYDBUF 047D" style="font-size:9px;padding:2px 5px">Probe1:KYDBUF</button>
           <button class="b" onclick="probeDisplay2()" title="Test 8279 @20H" style="font-size:9px;padding:2px 5px">Probe2:20H</button>
           <button class="b" onclick="probeDisplay3()" title="Test 8279 @40H" style="font-size:9px;padding:2px 5px">Probe3:40H</button>
@@ -159,10 +161,10 @@
 <script src="core/io.js?v=3"></script>
 <script src="core/transpiler.js?v=3"></script>
 <!-- App: UI, editor -->
-<script src="app/examples.js?v=3"></script>
+<script src="app/examples.js?v=4"></script>
 <script src="app/files.js?v=3"></script>
 <script src="app/guide.js"></script>
-<script src="app/serial.js"></script>
+<script src="app/serial.js?v=4"></script>
 <script src="app/highlighter.js"></script>
 <script src="app/panels.js?v=3"></script>
 <script src="app/render.js?v=3"></script>

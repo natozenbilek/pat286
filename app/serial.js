@@ -249,6 +249,7 @@ async function uploadCmdAndRun(machineCode, label, startAddr) {
   if (!serialConnected) { sLog('Connect to device first!', 1); return; }
   let addr = (startAddr || 0x0100);
   let addrStr = addr.toString(16).toUpperCase().padStart(4, '0');
+  let fullAddr = '0080:' + addrStr;  // Always use segment 0080
 
   serialRxLog += '\n=== ' + (label || 'C CMD') + ' (C + ESC exit) ===\n';
   updateSerialTerminal();
@@ -259,10 +260,10 @@ async function uploadCmdAndRun(machineCode, label, startAddr) {
   updateSerialTerminal();
   if (!gotP) return;
 
-  // 2. Enter C interactive mode at address
-  serialRxLog += 'TX: C ' + addrStr + '\n';
+  // 2. Enter C interactive mode at address (with segment to avoid FFFF issue)
+  serialRxLog += 'TX: C ' + fullAddr + '\n';
   updateSerialTerminal();
-  let gotC = await sendAndWait('C ' + addrStr + '\r\n', addrStr, 3000);
+  let gotC = await sendAndWait('C ' + fullAddr + '\r\n', addrStr, 3000);
   if (!gotC) {
     serialRxLog += '[WARN] No response to C command\n';
     updateSerialTerminal();
@@ -301,11 +302,11 @@ async function uploadCmdAndRun(machineCode, label, startAddr) {
   updateSerialTerminal();
   if (!gotExit) return;
 
-  // 6. G [addr] — execute
+  // 6. G [seg:addr] — execute (use segment to avoid FFFF issue)
   await sleep(200);
-  serialRxLog += 'TX: G ' + addrStr + '\n';
+  serialRxLog += 'TX: G ' + fullAddr + '\n';
   updateSerialTerminal();
-  let gotG = await sendAndWait('G ' + addrStr + '\r\n', PAT_PROMPT, 8000);
+  let gotG = await sendAndWait('G ' + fullAddr + '\r\n', PAT_PROMPT, 120000);
   serialRxLog += gotG ? '=== SUCCESS ===\n' : '--- G TIMEOUT ---\n';
   updateSerialTerminal();
 }
@@ -359,6 +360,7 @@ async function uploadCmdAndRunNoWait(machineCode, label) {
   if (!serialConnected) { sLog('Connect to device first!', 1); return; }
   let addr = 0x0100;
   let addrStr = addr.toString(16).toUpperCase().padStart(4, '0');
+  let fullAddr = '0080:' + addrStr;  // Always use segment 0080
 
   serialRxLog += '\n=== ' + (label || 'C CMD') + ' (C + ESC exit) ===\n';
   updateSerialTerminal();
@@ -368,9 +370,9 @@ async function uploadCmdAndRunNoWait(machineCode, label) {
   updateSerialTerminal();
   if (!gotP) return;
 
-  serialRxLog += 'TX: C ' + addrStr + '\n';
+  serialRxLog += 'TX: C ' + fullAddr + '\n';
   updateSerialTerminal();
-  let gotC = await sendAndWait('C ' + addrStr + '\r\n', addrStr, 3000);
+  let gotC = await sendAndWait('C ' + fullAddr + '\r\n', addrStr, 3000);
   if (!gotC) {
     serialRxLog += '[WARN] No response to C command\n';
     updateSerialTerminal();
@@ -406,9 +408,9 @@ async function uploadCmdAndRunNoWait(machineCode, label) {
   if (!gotExit) return;
 
   await sleep(200);
-  serialRxLog += 'TX: G ' + addrStr + '\n';
+  serialRxLog += 'TX: G ' + fullAddr + '\n';
   updateSerialTerminal();
-  await serialSendRaw('G ' + addrStr + '\r\n');
+  await serialSendRaw('G ' + fullAddr + '\r\n');
   // Don't wait for PAT prompt — program runs forever (JMP $)
   serialRxLog += '=== RUNNING (press RESET to stop) ===\n';
   updateSerialTerminal();
@@ -445,9 +447,10 @@ async function uploadProgram() {
 // --- Run / Trace commands (fast send) ---
 async function sendGo() {
   let addr = progOrg ? progOrg.toString(16).toUpperCase().padStart(4, '0') : '0100';
-  serialRxLog += '\nTX: G ' + addr + '\n';
+  let fullAddr = '0080:' + addr;
+  serialRxLog += '\nTX: G ' + fullAddr + '\n';
   updateSerialTerminal();
-  let got = await sendAndWait('G ' + addr + '\r\n', PAT_PROMPT, 8000);
+  let got = await sendAndWait('G ' + fullAddr + '\r\n', PAT_PROMPT, 8000);
   serialRxLog += got ? '=== SUCCESS ===\n' : '--- G TIMEOUT ---\n';
   updateSerialTerminal();
 }
@@ -668,6 +671,184 @@ async function probeDisplay4() {
   await uploadCmdAndRunNoWait(mc4, 'PROBE: 8279 @60H/61H');
   serialRxLog += '>>> Check display! If 8s, 8279 is at 60H/61H.\n';
   serialRxLog += '>>> Press PAT RESET to continue.\n';
+  updateSerialTerminal();
+}
+
+// =================================================================
+// PROBE 5: Full I/O Port Scanner
+// Reads ALL ports (00-7F, A0-FF), skips MUART 80-9F
+// Prints "PP=VV " for ports that don't read FF (= real hardware)
+// =================================================================
+async function probeScanPorts() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  serialRxLog += '\n=== I/O PORT SCANNER ===\n';
+  serialRxLog += 'Scanning ports 00-7F, A0-FF (skipping MUART 80-9F)...\n';
+  serialRxLog += 'Format: PORT=VALUE (only non-FF ports shown)\n\n';
+  updateSerialTerminal();
+
+  // Machine code: scans all ports, prints non-FF via INT 28H WRBYTE/WRCHAR
+  // Skips 80H-9FH (MUART) to avoid disrupting serial connection
+  //
+  // 0100: XOR DX, DX          ; DX = port 0
+  // SCAN:
+  // 0102: CMP DL, 80H
+  // 0105: JB DO_READ
+  // 0107: CMP DL, A0H
+  // 010A: JB SKIP
+  // DO_READ:
+  // 010C: IN AL, DX
+  // 010D: CMP AL, FFH
+  // 010F: JE SKIP
+  // 0111: PUSH AX
+  // 0112: MOV BL, DL          ; print port#
+  // 0114: MOV AH, 0DH
+  // 0116: INT 28H
+  // 0118: MOV BL, '='
+  // 011A: MOV AH, 0CH
+  // 011C: INT 28H
+  // 011E: POP AX
+  // 011F: MOV BL, AL          ; print value
+  // 0121: MOV AH, 0DH
+  // 0123: INT 28H
+  // 0125: MOV BL, ' '
+  // 0127: MOV AH, 0CH
+  // 0129: INT 28H
+  // SKIP:
+  // 012B: INC DX
+  // 012C: CMP DX, 0100H
+  // 0130: JB SCAN
+  // 0132: MOV AH, 11H         ; CRLF
+  // 0134: INT 28H
+  // 0136: MOV AH, 04H         ; EXIT
+  // 0138: INT 28H
+
+  let mcScan = [
+    0x33, 0xD2,                   // XOR DX, DX
+    // SCAN (offset 2):
+    0x80, 0xFA, 0x80,             // CMP DL, 80H
+    0x72, 0x05,                   // JB DO_READ (+5 -> offset 12)
+    0x80, 0xFA, 0xA0,             // CMP DL, A0H
+    0x72, 0x1F,                   // JB SKIP (+1F -> offset 43)
+    // DO_READ (offset 12):
+    0xEC,                         // IN AL, DX
+    0x3C, 0xFF,                   // CMP AL, FFH
+    0x74, 0x1A,                   // JE SKIP (+1A -> offset 43)
+    // Print port number
+    0x50,                         // PUSH AX
+    0x8A, 0xDA,                   // MOV BL, DL
+    0xB4, 0x0D,                   // MOV AH, 0DH (WRBYTE)
+    0xCD, 0x28,                   // INT 28H
+    // Print '='
+    0xB3, 0x3D,                   // MOV BL, '='
+    0xB4, 0x0C,                   // MOV AH, 0CH (WRCHAR)
+    0xCD, 0x28,                   // INT 28H
+    // Print value
+    0x58,                         // POP AX
+    0x8A, 0xD8,                   // MOV BL, AL
+    0xB4, 0x0D,                   // MOV AH, 0DH (WRBYTE)
+    0xCD, 0x28,                   // INT 28H
+    // Print space
+    0xB3, 0x20,                   // MOV BL, ' '
+    0xB4, 0x0C,                   // MOV AH, 0CH (WRCHAR)
+    0xCD, 0x28,                   // INT 28H
+    // SKIP (offset 43):
+    0x42,                         // INC DX
+    0x81, 0xFA, 0x00, 0x01,       // CMP DX, 0100H
+    0x72, 0xD0,                   // JB SCAN (-48 -> offset 2)
+    // Done
+    0xB4, 0x11,                   // MOV AH, 11H (CRLF)
+    0xCD, 0x28,                   // INT 28H
+    0xB4, 0x04,                   // MOV AH, 04H (EXIT)
+    0xCD, 0x28,                   // INT 28H
+  ];
+
+  await uploadCmdAndRun(mcScan, 'PORT SCANNER');
+  serialRxLog += '\n>>> Scan complete. Look for non-FF ports above.\n';
+  serialRxLog += '>>> Known: 80-9F = MUART (skipped). Others = unknown devices.\n';
+  updateSerialTerminal();
+}
+
+// =================================================================
+// PROBE 6: Brute-force display test — tries ALL even/odd port pairs
+// For each pair, sends 8279 init + write FF to all 8 digits
+// =================================================================
+async function probeBruteDisplay() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  serialRxLog += '\n=== BRUTE-FORCE DISPLAY PROBE ===\n';
+  serialRxLog += 'Will try 8279 init at EVERY port pair 00-7F, A0-FF.\n';
+  serialRxLog += 'Watch the keyboard display — if segments light up, we found it!\n\n';
+  updateSerialTerminal();
+
+  // Try port pairs: (data, cmd) = (00,01), (02,03), (04,05) ... (7E,7F), (A0,A1) ... (FE,FF)
+  // Skip 80-9F (MUART)
+  let pairs = [];
+  for (let p = 0; p < 0x80; p += 2) pairs.push(p);
+  for (let p = 0xA0; p < 0x100; p += 2) pairs.push(p);
+
+  for (let i = 0; i < pairs.length; i++) {
+    let dataPort = pairs[i];
+    let cmdPort = pairs[i] + 1;
+
+    serialRxLog += `[${i+1}/${pairs.length}] Testing 8279 @${dataPort.toString(16).toUpperCase().padStart(2,'0')}H/${cmdPort.toString(16).toUpperCase().padStart(2,'0')}H... `;
+    updateSerialTerminal();
+
+    // Machine code:
+    // MOV AL, D1H (clear display, fill with 1s)
+    // OUT cmdPort, AL
+    // MOV CX, 00FF ; wait
+    // LOOP $
+    // MOV AL, 80H (write display RAM, addr 0)
+    // OUT cmdPort, AL
+    // MOV AL, FFH (all segments on)
+    // OUT dataPort, AL (x8 digits)
+    // ... x8
+    // INT 28H AH=16 WTNMS BX=500 (wait 500ms)
+    // INT 28H AH=04 EXIT
+    let mc = [
+      0xB0, 0xD1,                     // MOV AL, D1H
+      0xE6, cmdPort & 0xFF,           // OUT cmdPort, AL
+      0xB9, 0xFF, 0x00,               // MOV CX, 00FFH
+      0xE2, 0xFE,                     // LOOP $
+      0xB0, 0x80,                     // MOV AL, 80H
+      0xE6, cmdPort & 0xFF,           // OUT cmdPort, AL
+      0xB0, 0xFF,                     // MOV AL, FFH
+      0xE6, dataPort & 0xFF,          // OUT dataPort x8
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      0xE6, dataPort & 0xFF,
+      // Wait 500ms so user can see
+      0xBB, 0xF4, 0x01,               // MOV BX, 500
+      0xB4, 0x10,                     // MOV AH, 10H (WTNMS)
+      0xCD, 0x28,                     // INT 28H
+      // Clear display (turn off)
+      0xB0, 0xD0,                     // MOV AL, D0H (clear with 0s)
+      0xE6, cmdPort & 0xFF,           // OUT cmdPort, AL
+      0xB9, 0xFF, 0x00,               // MOV CX, 00FFH
+      0xE2, 0xFE,                     // LOOP $
+      // EXIT
+      0xB4, 0x04,                     // MOV AH, 04H
+      0xCD, 0x28,                     // INT 28H
+    ];
+
+    try {
+      await uploadCmdAndRun(mc, `8279@${dataPort.toString(16).toUpperCase()}H`);
+      serialRxLog += 'done\n';
+    } catch(e) {
+      serialRxLog += 'error\n';
+    }
+    updateSerialTerminal();
+
+    // Small delay between tests
+    await sleep(300);
+  }
+
+  serialRxLog += '\n>>> Brute-force complete. Did you see any segments light up?\n';
   updateSerialTerminal();
 }
 
