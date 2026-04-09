@@ -537,6 +537,140 @@ if (!('serial' in navigator)) {
   if (upBtn) { upBtn.disabled = true; upBtn.title = 'WebSerial: Chrome/Edge only'; }
 }
 
+// ===================================================================
+// Display Probe — discover keyboard display address
+// Writes test patterns to potential display locations
+// ===================================================================
+async function probeDisplay() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  serialRxLog += '\n=== DISPLAY PROBE ===\n';
+  serialRxLog += 'Testing keyboard display addresses...\n';
+  updateSerialTerminal();
+
+  // Test 1: Write FF to KYDBUF area (0000:047D-0484) via code
+  // This writes to system segment memory
+  serialRxLog += '\n[TEST 1] KYDBUF 0000:047D — all segments ON\n';
+  updateSerialTerminal();
+  let mc1 = [
+    0x1E,                         // PUSH DS
+    0xB8, 0x00, 0x00,             // MOV AX, 0000
+    0x8E, 0xD8,                   // MOV DS, AX
+    // Write FF (all segments) to 047D-0484
+    0xC6, 0x06, 0x7D, 0x04, 0xFF, // MOV BYTE PTR [047DH], FF
+    0xC6, 0x06, 0x7E, 0x04, 0xFF, // MOV BYTE PTR [047EH], FF
+    0xC6, 0x06, 0x7F, 0x04, 0xFF, // MOV BYTE PTR [047FH], FF
+    0xC6, 0x06, 0x80, 0x04, 0xFF, // MOV BYTE PTR [0480H], FF
+    0xC6, 0x06, 0x81, 0x04, 0xFF, // MOV BYTE PTR [0481H], FF
+    0xC6, 0x06, 0x82, 0x04, 0xFF, // MOV BYTE PTR [0482H], FF
+    0xC6, 0x06, 0x83, 0x04, 0xFF, // MOV BYTE PTR [0483H], FF
+    0xC6, 0x06, 0x84, 0x04, 0xFF, // MOV BYTE PTR [0484H], FF
+    0x1F,                         // POP DS
+    0xEB, 0xFE                    // JMP $ (stay)
+  ];
+  await uploadCmdAndRunNoWait(mc1, 'PROBE: KYDBUF 047D');
+  serialRxLog += '>>> Check display now! If all 8s appear, KYDBUF=047D is correct.\n';
+  serialRxLog += '>>> Press PAT RESET, then click next test.\n';
+  updateSerialTerminal();
+}
+
+async function probeDisplay2() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  // Test 2: Try 8279 keyboard/display controller
+  // Common 8279 ports: 20H/21H, 40H/41H, or other addresses
+  // 8279 init: command=00, write display RAM command=80H
+  serialRxLog += '\n[TEST 2] 8279 display controller — port 20H/21H\n';
+  updateSerialTerminal();
+  let mc2 = [
+    // Try 8279 at port 21H (command), 20H (data)
+    // Command: clear display (CD=1DH)
+    0xB0, 0xD1,       // MOV AL, D1H (clear display, all 1s)
+    0xE6, 0x21,       // OUT 21H, AL (command port)
+    // Wait a bit
+    0xB9, 0xFF, 0x00, // MOV CX, 00FF
+    0xE2, 0xFE,       // LOOP $
+    // Write display: command 80H = write display RAM addr 0
+    0xB0, 0x80,       // MOV AL, 80H (write display RAM, addr 0)
+    0xE6, 0x21,       // OUT 21H, AL
+    // Write 8 digits of "88888888" (FF = all segments)
+    0xB0, 0xFF,       // MOV AL, FFH
+    0xE6, 0x20,       // OUT 20H, AL (digit 0)
+    0xE6, 0x20,       // OUT 20H, AL (digit 1)
+    0xE6, 0x20,       // OUT 20H, AL (digit 2)
+    0xE6, 0x20,       // OUT 20H, AL (digit 3)
+    0xE6, 0x20,       // OUT 20H, AL (digit 4)
+    0xE6, 0x20,       // OUT 20H, AL (digit 5)
+    0xE6, 0x20,       // OUT 20H, AL (digit 6)
+    0xE6, 0x20,       // OUT 20H, AL (digit 7)
+    0xEB, 0xFE        // JMP $
+  ];
+  await uploadCmdAndRunNoWait(mc2, 'PROBE: 8279 @20H/21H');
+  serialRxLog += '>>> Check display! If 8s appear, 8279 is at 20H/21H.\n';
+  serialRxLog += '>>> Press PAT RESET, then try next test.\n';
+  updateSerialTerminal();
+}
+
+async function probeDisplay3() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  // Test 3: Try different 8279 port pair: 40H/41H
+  serialRxLog += '\n[TEST 3] 8279 @40H/41H\n';
+  updateSerialTerminal();
+  let mc3 = [
+    0xB0, 0xD1,       // MOV AL, D1H (clear display)
+    0xE6, 0x41,       // OUT 41H, AL
+    0xB9, 0xFF, 0x00, // MOV CX, 00FF
+    0xE2, 0xFE,       // LOOP $
+    0xB0, 0x80,       // MOV AL, 80H (write RAM addr 0)
+    0xE6, 0x41,       // OUT 41H, AL
+    0xB0, 0xFF,       // MOV AL, FFH
+    0xE6, 0x40,       // OUT 40H, AL
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xE6, 0x40,
+    0xEB, 0xFE
+  ];
+  await uploadCmdAndRunNoWait(mc3, 'PROBE: 8279 @40H/41H');
+  serialRxLog += '>>> Check display! If 8s appear, 8279 is at 40H/41H.\n';
+  serialRxLog += '>>> Press PAT RESET, then try next test.\n';
+  updateSerialTerminal();
+}
+
+async function probeDisplay4() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  // Test 4: Try 8279 at 60H/61H
+  serialRxLog += '\n[TEST 4] 8279 @60H/61H\n';
+  updateSerialTerminal();
+  let mc4 = [
+    0xB0, 0xD1,
+    0xE6, 0x61,
+    0xB9, 0xFF, 0x00,
+    0xE2, 0xFE,
+    0xB0, 0x80,
+    0xE6, 0x61,
+    0xB0, 0xFF,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xE6, 0x60,
+    0xEB, 0xFE
+  ];
+  await uploadCmdAndRunNoWait(mc4, 'PROBE: 8279 @60H/61H');
+  serialRxLog += '>>> Check display! If 8s, 8279 is at 60H/61H.\n';
+  serialRxLog += '>>> Press PAT RESET to continue.\n';
+  updateSerialTerminal();
+}
+
 // Forwarding stubs
 const HW_PORTS = new Set([0x80,0x82,0x84,0x86,0x88,0x8A,0x8C,0x8E,0x90,0x92,0x94,0x96,0x98,0x9A,0x9C,0x9E]);
 async function serialWritePort(port, val) {}
