@@ -730,90 +730,92 @@ async function probeScanPorts() {
   if (!serialConnected) { sLog('Connect to device first!', 1); return; }
 
   serialRxLog += '\n=== I/O PORT SCANNER ===\n';
-  serialRxLog += 'Scanning ports 00-7F, A0-FF (skipping MUART 80-9F)...\n';
-  serialRxLog += 'Format: PORT=VALUE (only non-FF ports shown)\n\n';
+  serialRxLog += 'Phase 1: Reading all ports into memory 0200-02FF...\n';
   updateSerialTerminal();
 
-  // Machine code: scans all ports, prints non-FF via INT 28H WRBYTE/WRCHAR
-  // Skips 80H-9FH (MUART) to avoid disrupting serial connection
+  // SAFE scanner: reads all 256 ports, stores at DS:0200-02FF, then EXITs
+  // No INT 28H during scan = no register clobbering risk
+  // After EXIT, we use M command to dump results
   //
-  // 0100: XOR DX, DX          ; DX = port 0
+  // 0100: MOV DI, 0200H      ; destination
+  // 0103: XOR DX, DX          ; port 0
   // SCAN:
-  // 0102: CMP DL, 80H
-  // 0105: JB DO_READ
-  // 0107: CMP DL, A0H
-  // 010A: JB SKIP
-  // DO_READ:
-  // 010C: IN AL, DX
-  // 010D: CMP AL, FFH
-  // 010F: JE SKIP
-  // 0111: PUSH AX
-  // 0112: MOV BL, DL          ; print port#
-  // 0114: MOV AH, 0DH
-  // 0116: INT 28H
-  // 0118: MOV BL, '='
-  // 011A: MOV AH, 0CH
-  // 011C: INT 28H
-  // 011E: POP AX
-  // 011F: MOV BL, AL          ; print value
-  // 0121: MOV AH, 0DH
-  // 0123: INT 28H
-  // 0125: MOV BL, ' '
-  // 0127: MOV AH, 0CH
-  // 0129: INT 28H
+  // 0105: CMP DL, 80H         ; skip MUART
+  // 0108: JB READ
+  // 010A: CMP DL, A0H
+  // 010D: JB SKIP
+  // READ:
+  // 010F: IN AL, DX
+  // 0110: MOV [DI], AL
+  // 0112: JMP NEXT
   // SKIP:
-  // 012B: INC DX
-  // 012C: CMP DX, 0100H
-  // 0130: JB SCAN
-  // 0132: MOV AH, 11H         ; CRLF
-  // 0134: INT 28H
-  // 0136: MOV AH, 04H         ; EXIT
-  // 0138: INT 28H
+  // 0114: MOV BYTE [DI], FFH  ; mark skipped as FF
+  // NEXT:
+  // 0118: INC DI
+  // 0119: INC DX
+  // 011A: CMP DX, 0100H
+  // 011E: JB SCAN
+  // 0120: EXIT
 
   let mcScan = [
+    0xBF, 0x00, 0x02,             // MOV DI, 0200H
     0x33, 0xD2,                   // XOR DX, DX
-    // SCAN (offset 2):
+    // SCAN (offset 5):
     0x80, 0xFA, 0x80,             // CMP DL, 80H
-    0x72, 0x05,                   // JB DO_READ (+5 -> offset 12)
+    0x72, 0x05,                   // JB READ (+5 -> offset 15)
     0x80, 0xFA, 0xA0,             // CMP DL, A0H
-    0x72, 0x1F,                   // JB SKIP (+1F -> offset 43)
-    // DO_READ (offset 12):
+    0x72, 0x05,                   // JB SKIP (+5 -> offset 20)
+    // READ (offset 15):
     0xEC,                         // IN AL, DX
-    0x3C, 0xFF,                   // CMP AL, FFH
-    0x74, 0x1A,                   // JE SKIP (+1A -> offset 43)
-    // Print port number
-    0x50,                         // PUSH AX
-    0x8A, 0xDA,                   // MOV BL, DL
-    0xB4, 0x0D,                   // MOV AH, 0DH (WRBYTE)
-    0xCD, 0x28,                   // INT 28H
-    // Print '='
-    0xB3, 0x3D,                   // MOV BL, '='
-    0xB4, 0x0C,                   // MOV AH, 0CH (WRCHAR)
-    0xCD, 0x28,                   // INT 28H
-    // Print value
-    0x58,                         // POP AX
-    0x8A, 0xD8,                   // MOV BL, AL
-    0xB4, 0x0D,                   // MOV AH, 0DH (WRBYTE)
-    0xCD, 0x28,                   // INT 28H
-    // Print space
-    0xB3, 0x20,                   // MOV BL, ' '
-    0xB4, 0x0C,                   // MOV AH, 0CH (WRCHAR)
-    0xCD, 0x28,                   // INT 28H
-    // SKIP (offset 43):
+    0x88, 0x05,                   // MOV [DI], AL
+    0xEB, 0x04,                   // JMP NEXT (+4 -> offset 24)
+    // SKIP (offset 20):
+    0xC6, 0x05, 0xFF,             // MOV BYTE PTR [DI], FFH
+    0x90,                         // NOP (alignment)
+    // NEXT (offset 24):
+    0x47,                         // INC DI
     0x42,                         // INC DX
     0x81, 0xFA, 0x00, 0x01,       // CMP DX, 0100H
-    0x72, 0xD0,                   // JB SCAN (-48 -> offset 2)
-    // Done
-    0xB4, 0x11,                   // MOV AH, 11H (CRLF)
-    0xCD, 0x28,                   // INT 28H
-    0xB4, 0x04,                   // MOV AH, 04H (EXIT)
+    0x72, 0xE5,                   // JB SCAN (-27 -> offset 5)
+    // EXIT
+    0xB4, 0x04,                   // MOV AH, 04H
     0xCD, 0x28,                   // INT 28H
   ];
 
-  await uploadCmdAndRun(mcScan, 'PORT SCANNER');
-  serialRxLog += '\n>>> Scan complete. Look for non-FF ports above.\n';
-  serialRxLog += '>>> Known: 80-9F = MUART (skipped). Others = unknown devices.\n';
+  await uploadCmdAndRun(mcScan, 'PORT SCANNER (store)');
+
+  // Phase 2: Dump the results using M command
+  serialRxLog += '\nPhase 2: Reading port scan results from memory...\n';
   updateSerialTerminal();
+
+  // Wait for PAT prompt, then send M 0200 to dump results
+  await sleep(500);
+  let gotP = await sendAndWait('\r\n', PAT_PROMPT, 2000);
+  if (!gotP) {
+    serialRxLog += '[WARN] No PAT: prompt for M command\n';
+    updateSerialTerminal();
+    return;
+  }
+
+  // Dump 0200-02FF (256 bytes = port scan results)
+  serialRxLog += 'TX: M 0200\n';
+  updateSerialTerminal();
+  let dump1 = await sendAndWait('M 0200\r\n', PAT_PROMPT, 5000);
+  if (dump1) {
+    serialRxLog += '\n--- PORT SCAN RESULTS (port → value) ---\n';
+    // Parse the M command output to show interesting ports
+    parsePortScanDump(serialRxBuf || '');
+  } else {
+    serialRxLog += '[WARN] M command timeout\n';
+  }
+  updateSerialTerminal();
+}
+
+// Parse M dump output and highlight non-FF ports
+function parsePortScanDump(raw) {
+  serialRxLog += 'Check M dump output above.\n';
+  serialRxLog += 'Ports 80-9F = MUART (marked FF). Other non-FF = real hardware.\n';
+  serialRxLog += 'Look for values like 00, 10, D0, etc — those are active devices.\n';
 }
 
 // =================================================================

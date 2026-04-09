@@ -317,6 +317,9 @@ function encodeInstruction(mn, operands, addr, defs, lbls) {
   if (mn === 'PUSH' || mn === 'POP') {
     let r16 = parseReg16(operands[0]);
     if (r16 !== -1) return {bytes: [mn === 'PUSH' ? 0x50 + r16 : 0x58 + r16]};
+    // Segment register PUSH/POP: ES=0, CS=1, SS=2, DS=3
+    let seg = {'ES':0,'CS':1,'SS':2,'DS':3}[operands[0].toUpperCase().trim()];
+    if (seg !== undefined) return {bytes: [mn === 'PUSH' ? (seg * 8 + 0x06) : (seg * 8 + 0x07)]};
     if (mn === 'PUSH') {
       let op = parseOperand(operands[0], defs, lbls, addr);
       if (op && op.type === 'mem') { let modrm = encodeModRM(6, op); return {bytes: [...segPrefixBytes(op), 0xFF, ...modrm]}; }

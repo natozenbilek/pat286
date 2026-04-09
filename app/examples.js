@@ -1025,8 +1025,8 @@ COUNT:  MOV     AL,CL
         ORG     0100H
         INCLUDE PATCALLS.INC
 
-        ; Port 1 direction: bit 5 = output (piezo toggle)
-        MOV     AL,20H
+        ; Port 1 direction: all output (piezo is on one of these bits)
+        MOV     AL,0FFH
         OUT     UPORT1CTL,AL
 
         ; === VERSE 1: "Zamansızdık ilk başta" ===
@@ -1358,7 +1358,7 @@ COUNT:  MOV     AL,CL
 ; ---- PLAY subroutine ----
 ; SI = half-period delay (loop count, controls frequency)
 ; DI = number of full cycles (controls duration)
-PLAY:   MOV     AL,20H
+PLAY:   MOV     AL,0FFH
         OUT     UPORT1,AL
         MOV     CX,SI
 PL1:    NOP
