@@ -555,6 +555,7 @@ async function probeDisplay() {
   // This writes to system segment memory
   serialRxLog += '\n[TEST 1] KYDBUF 0000:047D — all segments ON\n';
   updateSerialTerminal();
+  // Version A: Write to KYDBUF then EXIT (let monitor refresh display)
   let mc1 = [
     0x1E,                         // PUSH DS
     0xB8, 0x00, 0x00,             // MOV AX, 0000
@@ -569,11 +570,13 @@ async function probeDisplay() {
     0xC6, 0x06, 0x83, 0x04, 0xFF, // MOV BYTE PTR [0483H], FF
     0xC6, 0x06, 0x84, 0x04, 0xFF, // MOV BYTE PTR [0484H], FF
     0x1F,                         // POP DS
-    0xEB, 0xFE                    // JMP $ (stay)
+    // EXIT instead of JMP $ — return to PAT monitor so it can refresh display
+    0xB4, 0x04,                   // MOV AH, 04H (EXIT)
+    0xCD, 0x28,                   // INT 28H
   ];
-  await uploadCmdAndRunNoWait(mc1, 'PROBE: KYDBUF 047D');
-  serialRxLog += '>>> Check display now! If all 8s appear, KYDBUF=047D is correct.\n';
-  serialRxLog += '>>> Press PAT RESET, then click next test.\n';
+  await uploadCmdAndRun(mc1, 'PROBE: KYDBUF 047D + EXIT');
+  serialRxLog += '>>> If display shows 8s now, KYDBUF is correct (monitor refreshes it).\n';
+  serialRxLog += '>>> If not, press RESET and try Port Scan.\n';
   updateSerialTerminal();
 }
 
