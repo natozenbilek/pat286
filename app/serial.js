@@ -678,6 +678,50 @@ async function probeDisplay4() {
 }
 
 // =================================================================
+// PIEZO TEST: Toggle UPORT1 bit 5 to test piezo buzzer
+// Quick 1-second beep test
+// =================================================================
+async function probePiezo() {
+  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
+
+  serialRxLog += '\n=== PIEZO TEST ===\n';
+  serialRxLog += 'Toggling ALL bits of UPORT1 (90H) for 1 second...\n';
+  updateSerialTerminal();
+
+  // Set UPORT1CTL = FF (all output)
+  // Toggle ALL bits of UPORT1 with ~500Hz square wave for 500 cycles
+  // Then EXIT
+  let mc = [
+    0xB0, 0xFF,       // MOV AL, FFH
+    0xE6, 0x88,       // OUT 88H, AL (UPORT1CTL = all output)
+    0xBA, 0xF4, 0x01, // MOV DX, 500 (cycle count)
+    // BEEP loop:
+    0xB0, 0xFF,       // MOV AL, FFH (all bits high)
+    0xE6, 0x90,       // OUT 90H, AL (UPORT1)
+    0xB9, 0x58, 0x02, // MOV CX, 600 (half-period delay)
+    0x90,             // NOP
+    0xE2, 0xFD,       // LOOP -3
+    0xB0, 0x00,       // MOV AL, 00H (all bits low)
+    0xE6, 0x90,       // OUT 90H, AL
+    0xB9, 0x58, 0x02, // MOV CX, 600
+    0x90,             // NOP
+    0xE2, 0xFD,       // LOOP -3
+    0x4A,             // DEC DX
+    0x75, 0xE9,       // JNZ BEEP (-23 -> offset 7)
+    // Done
+    0xB0, 0x00,       // MOV AL, 00
+    0xE6, 0x90,       // OUT 90H, AL
+    0xB4, 0x04,       // MOV AH, 04H (EXIT)
+    0xCD, 0x28,       // INT 28H
+  ];
+
+  await uploadCmdAndRun(mc, 'PIEZO TEST');
+  serialRxLog += '>>> Did you hear a beep? If yes, piezo works on UPORT1.\n';
+  serialRxLog += '>>> If no sound, piezo may be on a different port/bit.\n';
+  updateSerialTerminal();
+}
+
+// =================================================================
 // PROBE 5: Full I/O Port Scanner
 // Reads ALL ports (00-7F, A0-FF), skips MUART 80-9F
 // Prints "PP=VV " for ports that don't read FF (= real hardware)
