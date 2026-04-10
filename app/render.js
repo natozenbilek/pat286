@@ -39,9 +39,9 @@ function renderAll() {
   document.getElementById('rgSeg').innerHTML=segHtml;
 
   let ctlHtml='';
-  for(let[v,n] of [[IP,'IP'],[FLAGS,'FLAGS'],[pa(CS,IP),'PhysAddr']]) {
+  for(let[v,n,lbl] of [[IP,'IP','IP'],[FLAGS,'FLAGS','FL'],[pa(CS,IP),'PhysAddr','Phys']]) {
     let changed = n !== 'PhysAddr' && prevRegVals[n] !== undefined && prevRegVals[n] !== v;
-    ctlHtml+=`<div class="rc${changed?' rc-flash':''}"><span class="rn">${n}</span><span class="rv">${n==='PhysAddr'?'0x'+(v).toString(16).toUpperCase().padStart(5,'0'):hex16(v)}</span></div>`;
+    ctlHtml+=`<div class="rc${changed?' rc-flash':''}"><span class="rn">${lbl}</span><span class="rv">${n==='PhysAddr'?'0x'+(v).toString(16).toUpperCase().padStart(5,'0'):hex16(v)}</span></div>`;
   }
   document.getElementById('rgCtl').innerHTML=ctlHtml;
 

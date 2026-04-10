@@ -17,16 +17,14 @@ function buildRightPanel() {
       <div class="desc-box" id="desc" style="margin-top:4px">&mdash;</div>
       <div class="diff-box" id="diffBox" style="margin-top:4px">&mdash;</div>
     </div></div>
-    <div class="cd"><div class="ch">General purpose registers</div><div class="cb">
+    <div class="cd"><div class="ch">Registers</div><div class="cb">
       <div class="rg rg-gp" id="rgGP"></div>
-    </div></div>
-    <div class="cd"><div class="ch">Segment registers</div><div class="cb">
-      <div class="rg rg-seg" id="rgSeg"></div>
-    </div></div>
-    <div class="cd"><div class="ch">Control</div><div class="cb">
-      <div class="rg rg-ctl" id="rgCtl"></div>
-    </div></div>
-    <div class="cd"><div class="ch">Flags</div><div class="cb">
+      <div class="rg-divider"></div>
+      <div class="rg-row">
+        <div class="rg rg-seg" id="rgSeg" style="flex:1"></div>
+        <div class="rg rg-ctl" id="rgCtl" style="flex:1"></div>
+      </div>
+      <div class="rg-divider"></div>
       <div class="fr" id="flG"></div>
     </div></div>
     <div class="cd"><div class="ch">PAT Display <span class="ch-sub">INT 28H output</span></div><div class="cb">
