@@ -1014,535 +1014,339 @@ COUNT:  MOV     AL,CL
         MOV     AH,EXIT
         INT     28H`,
 
-'Zamansızdık - Manifest': `; Zamansızdık — Manifest (Ateş Atilla)
-; Mi minör, ~100 BPM — kolaynota.com nota kağıdından
-; DigiAC2000 piezo toggle: UPORT1 tüm bitler
+'Zamansızdık - Manifest': `; Zamansızdık — Manifest (Ates Atilla)
+; E minor, ~100 BPM — kolaynota.com notasyonundan
+; Fiziksel DigiAC2000 uyumlu: piezo toggle + delay loop
 ;
-; PLAY: SI=yarı-periyot gecikme, DI=döngü sayısı
-; Do4=900 Re4=800 Re#4=755 Mi4=710 Fa#4=635
+; PLAY subroutine: SI=half-period loops, DI=cycle count
+; Nota delay degerleri (yaklasik, ~8MHz):
+; Do4=900 Re4=800 Mi4=710 Fa#4=635
 ; Sol4=600 La4=535 Si4=475 Do5=450
-;
-; Süre: e=eighth q=quarter h=half t=triplet
         ORG     0100H
         INCLUDE PATCALLS.INC
 
-        MOV     AL,0FFH
+        ; Port 1 init: bit 5 = output (piezo)
+        MOV     AL,20H
         OUT     UPORT1CTL,AL
 
-        ; ═══ VERSE 1: "Zamansızdık ilk başta" ═══
-        ; Fa#(e) Mi(e) Fa#(e) Sol(q) Fa#(e) Mi(e) Do(h)
+        ; === VERSE 1: "Zamansızdık ilk başta" ===
+        ; Fa# Mi Fa# Sol Fa# Mi Do
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,111
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,85
+        MOV     DI,99
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,111
         CALL    PLAY
         MOV     SI,600
-        MOV     DI,200
+        MOV     DI,118
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,111
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,85
+        MOV     DI,99
         CALL    PLAY
         MOV     SI,900
-        MOV     DI,267
+        MOV     DI,157
         CALL    PLAY
-        MOV     BX,40
+        ; gap
+        MOV     BX,50
         MOV     AH,WTNMS
         INT     28H
 
-        ; "Sandım hep iyi kalıcaz"
-        ; Fa#(e) Sol(e) Fa#(e) Mi(e) Si(h)
+        ; Fa# Sol Fa# Sol Mi Si Mi Fa# Sol Fa#
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,600
-        MOV     DI,100
+        MOV     DI,78
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,78
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,85
+        MOV     DI,99
         CALL    PLAY
         MOV     SI,475
-        MOV     DI,505
+        MOV     DI,148
         CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; 1st ending: Mi(e) Fa#(e) Sol(e) Fa#(h)
         MOV     SI,710
-        MOV     DI,85
+        MOV     DI,66
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,600
-        MOV     DI,100
+        MOV     DI,78
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,378
+        MOV     DI,111
         CALL    PLAY
-        MOV     BX,60
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ VERSE 2 (repeat): "yüzler / Artık işitmem sala" ═══
-        ; Fa#(e) Mi(e) Fa#(e) Sol(q) Fa#(e) Mi(e) Do(h)
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,900
-        MOV     DI,267
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; Fa#(e) Sol(e) Fa#(e) Mi(e) Si(h)
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,100
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,505
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; 2nd ending: La(q) Si(h)
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,505
-        CALL    PLAY
-        MOV     BX,60
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ SECTION B: "iltifat hissettirmiyor san" ═══
-        ; Fa#(e) Mi(e) Re#(e) Mi(e) Fa#(e) Sol(e) Fa#(q)
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,755
-        MOV     DI,80
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,100
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,189
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; "Boşa dökülen" Mi(q) Mi(e) Fa#(e) Sol(e) Fa#(e) Mi(h)
-        MOV     SI,710
-        MOV     DI,169
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,100
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,338
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; La(q) Si(h)
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,505
-        CALL    PLAY
-        MOV     BX,80
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ PRE-CHORUS: "konuşma bitsin en başından" ═══
-        ; Do(q) La(e) Re(e) Do(q) Do(q) Re(q) Si(q) La(e) Si(h)
-        MOV     SI,900
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,112
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,75
-        CALL    PLAY
-        MOV     SI,900
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,900
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,150
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,253
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,112
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,505
-        CALL    PLAY
-        MOV     BX,80
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; La(q) La(q) La(q) Si(q)
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,253
-        CALL    PLAY
-        MOV     BX,80
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ NAKARAT: "Her temasında" ═══
-        ; La(q) Sol(q) La(q) Sol(q) La(q) Si(h)
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,224
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,505
-        CALL    PLAY
-        MOV     BX,60
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; Fa#(e) Sol(e) Fa#(e) Mi(e) Re#(e) Mi(e) Fa#(e) Mi(e) Fa#(h)
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,100
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,755
-        MOV     DI,80
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,378
-        CALL    PLAY
+        ; gap
         MOV     BX,100
         MOV     AH,WTNMS
         INT     28H
 
-        ; ═══ BRIDGE: "Yanında kayboldum" (triplets) ═══
-        ; Mi(t) Sol(t) Fa#(t) Mi(t) Fa#(t) Mi(t) Sol(q)
-        MOV     SI,710
-        MOV     DI,56
+        ; === "Sandım hep iyi kalıcaz" ===
+        ; Fa# Mi Fa# Sol Fa# Mi
+        MOV     SI,635
+        MOV     DI,111
         CALL    PLAY
-        MOV     SI,600
-        MOV     DI,67
+        MOV     SI,710
+        MOV     DI,99
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,63
+        MOV     DI,111
         CALL    PLAY
-        MOV     SI,710
-        MOV     DI,56
+        MOV     SI,600
+        MOV     DI,118
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,63
+        MOV     DI,111
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,56
+        MOV     DI,198
         CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
+        ; gap
+        MOV     BX,50
+        MOV     AH,WTNMS
+        INT     28H
+
+        ; Mi Si Mi Fa# Sol Fa# Mi La Si
+        MOV     SI,710
+        MOV     DI,66
         CALL    PLAY
-        ; Sol(t) Fa#(t) Mi(t) Sol(t) Fa#(t) Mi(t) Sol(t) La(t) Sol(q)
-        MOV     SI,600
-        MOV     DI,67
+        MOV     SI,475
+        MOV     DI,99
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,66
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,63
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,56
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,600
-        MOV     DI,67
+        MOV     DI,78
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,63
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,56
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,67
+        MOV     DI,99
         CALL    PLAY
         MOV     SI,535
-        MOV     DI,75
+        MOV     DI,132
         CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
+        MOV     SI,475
+        MOV     DI,148
         CALL    PLAY
-        MOV     BX,60
+        ; gap
+        MOV     BX,100
         MOV     AH,WTNMS
         INT     28H
 
-        ; ═══ "Sabrımı çoktan aşmıştın" (triplets) ═══
-        ; Sol(t) Fa#(t) Mi(t) Sol(t) Fa#(t) Mi(t) Sol(t) La(t) Sol(q) Fa#(q)
-        MOV     SI,600
-        MOV     DI,67
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,63
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,56
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,67
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,63
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,56
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,67
+        ; === "Yetmiyordu..." ===
+        ; Do La Re Do Do Re Si La Si
+        MOV     SI,900
+        MOV     DI,79
         CALL    PLAY
         MOV     SI,535
-        MOV     DI,75
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,189
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ "Konuşma bitsin" ═══
-        ; Do(q) Sol(e) Fa#(e) Do(e) Re(e) Do(q) Do(e) Re(e) Do(q) Fa#(q) Mi(h)
-        MOV     SI,900
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,100
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,900
-        MOV     DI,67
+        MOV     DI,88
         CALL    PLAY
         MOV     SI,800
-        MOV     DI,75
+        MOV     DI,59
         CALL    PLAY
         MOV     SI,900
-        MOV     DI,133
+        MOV     DI,52
         CALL    PLAY
         MOV     SI,900
-        MOV     DI,67
+        MOV     DI,52
         CALL    PLAY
         MOV     SI,800
-        MOV     DI,75
-        CALL    PLAY
-        MOV     SI,900
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,189
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,338
-        CALL    PLAY
-        MOV     BX,60
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ "Artık düşene yakamdan" ═══
-        ; Si(q) Do(e) Si(e) Si(q) Do(e) Si(e) Re(q) La(e) Fa#(e) Mi(e) Fa#(q)
-        MOV     SI,475
-        MOV     DI,253
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,133
+        MOV     DI,59
         CALL    PLAY
         MOV     SI,475
-        MOV     DI,126
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,253
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,133
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,126
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,150
+        MOV     DI,148
         CALL    PLAY
         MOV     SI,535
-        MOV     DI,112
+        MOV     DI,132
         CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
+        MOV     SI,475
+        MOV     DI,148
         CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,189
-        CALL    PLAY
-        MOV     BX,40
+        ; gap
+        MOV     BX,150
         MOV     AH,WTNMS
         INT     28H
 
-        ; ═══ "Güm güm atsa da" ═══
-        ; Fa#(e) Mi(e) Fa#(e) Fa#(e) Mi(e) Fa#(e) Mi(e) Fa#(e) Mi(h)
-        MOV     SI,635
-        MOV     DI,95
+        ; === NAKARAT ===
+        ; La Sol La Sol La Si
+        MOV     SI,535
+        MOV     DI,132
         CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
+        MOV     SI,600
+        MOV     DI,118
         CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
+        MOV     SI,535
+        MOV     DI,132
         CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
+        MOV     SI,600
+        MOV     DI,118
         CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
+        MOV     SI,535
+        MOV     DI,132
         CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
+        MOV     SI,475
+        MOV     DI,296
         CALL    PLAY
-        MOV     SI,710
-        MOV     DI,85
-        CALL    PLAY
-        MOV     SI,635
-        MOV     DI,95
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,338
-        CALL    PLAY
-        MOV     BX,40
+        ; gap
+        MOV     BX,80
         MOV     AH,WTNMS
         INT     28H
 
-        ; ═══ "Ağlatır bir anda" ═══
-        ; Fa#(q) Sol(q) Sol(q) Fa#(e) Mi(e) Mi(h) Do(h)
-        MOV     SI,635
-        MOV     DI,189
+        ; Sol La Sol Fa# Sol La Sol Fa# Mi
+        MOV     SI,600
+        MOV     DI,118
+        CALL    PLAY
+        MOV     SI,535
+        MOV     DI,88
         CALL    PLAY
         MOV     SI,600
-        MOV     DI,200
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,200
+        MOV     DI,78
         CALL    PLAY
         MOV     SI,635
-        MOV     DI,95
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,118
+        CALL    PLAY
+        MOV     SI,535
+        MOV     DI,88
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,78
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,85
+        MOV     DI,198
+        CALL    PLAY
+        ; gap
+        MOV     BX,100
+        MOV     AH,WTNMS
+        INT     28H
+
+        ; === "Her te ma sin da..." ===
+        ; Fa# Sol Fa# Mi Fa# Mi
+        MOV     SI,635
+        MOV     DI,111
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,78
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
         CALL    PLAY
         MOV     SI,710
-        MOV     DI,338
+        MOV     DI,99
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,111
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,198
+        CALL    PLAY
+        ; gap
+        MOV     BX,80
+        MOV     AH,WTNMS
+        INT     28H
+
+        ; Fa# Fa# Mi Fa# Mi Fa# Mi
+        MOV     SI,635
+        MOV     DI,111
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,66
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,99
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,198
+        CALL    PLAY
+        ; gap
+        MOV     BX,100
+        MOV     AH,WTNMS
+        INT     28H
+
+        ; === BRIDGE ===
+        ; Fa# Sol Fa# Mi Re Mi Fa# Sol
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,78
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,66
+        CALL    PLAY
+        MOV     SI,800
+        MOV     DI,59
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,66
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,157
+        CALL    PLAY
+        ; gap
+        MOV     BX,100
+        MOV     AH,WTNMS
+        INT     28H
+
+        ; Fa# Sol Fa# Sol Fa# Mi Do
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,78
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,111
+        CALL    PLAY
+        MOV     SI,600
+        MOV     DI,118
+        CALL    PLAY
+        MOV     SI,635
+        MOV     DI,74
+        CALL    PLAY
+        MOV     SI,710
+        MOV     DI,198
         CALL    PLAY
         MOV     SI,900
-        MOV     DI,267
+        MOV     DI,157
         CALL    PLAY
 
         ; === END ===
@@ -1554,7 +1358,7 @@ COUNT:  MOV     AL,CL
 ; ---- PLAY subroutine ----
 ; SI = half-period delay (loop count, controls frequency)
 ; DI = number of full cycles (controls duration)
-PLAY:   MOV     AL,0FFH
+PLAY:   MOV     AL,20H
         OUT     UPORT1,AL
         MOV     CX,SI
 PL1:    NOP
@@ -1567,889 +1371,4 @@ PL2:    NOP
         DEC     DI
         JNZ     PLAY
         RET`,
-
-'Amatör - Manifest': `; Amatör — Manifest (Aleina & Ateş Atilla)
-; La minör, ~130 BPM — kolaynota.com nota kağıdından
-; DigiAC2000 piezo toggle: UPORT1 tüm bitler
-;
-; PLAY: SI=yarı-periyot gecikme, DI=döngü sayısı
-; Re4=800 Mi4=710 Fa4=675 Sol4=600
-; La4=535 Si4=475 Do5=450 Do#5=425
-;
-; Süre: s=sixteenth e=eighth q=quarter h=half
-        ORG     0100H
-        INCLUDE PATCALLS.INC
-
-        MOV     AL,0FFH
-        OUT     UPORT1CTL,AL
-
-        ; ═══ INTRO: "La La Si" hook ═══
-        ; La(e) La(e) Si(q) La(e) La(e) La(e) Si(e)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,195
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        ; La(e) Sol(e) Si(q) La(e) La(e) La(e) Si(e)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,195
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        ; La(e) La(e) La(e) Si(e) La(e) Sol(e) Si(q)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,195
-        CALL    PLAY
-        MOV     BX,50
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ VERSE 1: "Sanıyo ki herkes ona hayran" ═══
-        ; Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Fa(e) Mi(e) Re(e)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; La(q) La(q)
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; "Aynada kendine bodrimeyden"
-        ; Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Sol(e) Fa(e) Mi(e) Re(e)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; La(e) La(e) La(e) La(e)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ VERSE 1B: "sefernakavt, Hisler yalan" ═══
-        ; Sol(e) La(e) La(q) Sol(e) Sol(e) La(e) La(e) Si(q)
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,195
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; La(e) La(e) La(e) La(e) La(e) La(e) La(e)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        ; La(e) Do#(e) Do#(e) Si(q)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,425
-        MOV     DI,109
-        CALL    PLAY
-        MOV     SI,425
-        MOV     DI,109
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,195
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; Mi(e) Mi(e) Mi(e) Re(q)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     BX,50
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ PRE-CHORUS: "Kafamın için de böyle" ═══
-        ; Sol(q) La(e) La(e) La(e) La(e) Mi(q)
-        MOV     SI,600
-        MOV     DI,155
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,131
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; "Oynuyosan ki hislerimle"
-        ; La(e) Mi(e) Mi(e) Mi(e) Mi(q) Si(e) Sol(e) Re(q)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,131
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; "Gördün bu filmi sonda fa..."
-        ; Sol(e) La(e) Sol(e) Sol(q) La(e) Mi(e) Sol(e) La(e) Sol(q)
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,155
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,155
-        CALL    PLAY
-        MOV     BX,30
-        MOV     AH,WTNMS
-        INT     28H
-        ; "Sana bu gidiyele kimse kanmaz"
-        ; Sol(e) La(e) Fa(e) Mi(e) Re(e) Re(e) Re(q)
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     BX,50
-        MOV     AH,WTNMS
-        INT     28H
-        ; "Sen anca boylaf ama ama ama"
-        ; La(e) Mi(e) Mi(e) Sol(e) La(e) La(e) Sol(q)
-        ; Sol(e) La(e) Fa(e) Mi(e) Re(e) Re(q)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,155
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     BX,60
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ NAKARAT: "ama... ama... tür ama" ═══
-        ; La(s) La(s) La(s) La(s) La(q) Si(e) Si(e) La(q)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        ; La(s) La(s) La(s) La(s) La(q) La(e) La(e) La(q) Si(e) Si(e) Sol(e) La(q)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     BX,50
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; Chorus repeat
-        ; La(s) La(s) La(s) La(s) La(q) Si(e) Si(e) La(q)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        ; La(s) La(s) La(s) La(s) La(q) La(e) La(e) Si(e) Si(e) Sol(e) La(h)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,346
-        CALL    PLAY
-        MOV     BX,80
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ BRIDGE: "Dursıkılmasın reddetmekten" ═══
-        ; Mi(e) Re(e) Re(q) Re(e) Re(e) Mi(e) Re(q)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,58
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        ; Do(e) Do(e) Re(q) Mi(e) Mi(e) Mi(q)
-        MOV     SI,450
-        MOV     DI,103
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,103
-        CALL    PLAY
-        MOV     SI,800
-        MOV     DI,116
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,131
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; "Seni çok tüzdiysen devam edirem"
-        ; La(q) Mi(e) Mi(e) Si(e) Do(q)
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,206
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; "Bordum oyunu... yokmuya kıplerini"
-        ; La(e) Sol(e) Do(e) Si(e) La(e) La(q)
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,103
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        ; Mi(e) Mi(e) Mi(e) Mi(e) Mi(e) Fa(e) Mi(q)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,131
-        CALL    PLAY
-        MOV     BX,40
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; "Hiçyok... ayaksandıkların... Gitme"
-        ; Mi(e) Mi(e) Mi(e) Fa(e) Mi(e) Si(e) Do(q)
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,675
-        MOV     DI,69
-        CALL    PLAY
-        MOV     SI,710
-        MOV     DI,65
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,450
-        MOV     DI,206
-        CALL    PLAY
-        MOV     BX,80
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; ═══ FINAL CHORUS ═══
-        ; La(s) La(s) La(s) La(s) La(q) Si(e) Si(e) La(q)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        ; La(s) La(s) La(s) La(s) La(q) La(e) La(e) Si(e) Si(e) Sol(e) La(h)
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,44
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,173
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,87
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,475
-        MOV     DI,98
-        CALL    PLAY
-        MOV     SI,600
-        MOV     DI,77
-        CALL    PLAY
-        MOV     SI,535
-        MOV     DI,346
-        CALL    PLAY
-
-        ; ═══ ENDING: La(h) ═══
-        MOV     SI,535
-        MOV     DI,346
-        CALL    PLAY
-
-        ; === END ===
-        MOV     AL,00H
-        OUT     UPORT1,AL
-        MOV     AH,EXIT
-        INT     28H
-
-; ---- PLAY subroutine ----
-; SI = half-period delay (loop count, controls frequency)
-; DI = number of full cycles (controls duration)
-PLAY:   MOV     AL,0FFH
-        OUT     UPORT1,AL
-        MOV     CX,SI
-PL1:    NOP
-        LOOP    PL1
-        MOV     AL,00H
-        OUT     UPORT1,AL
-        MOV     CX,SI
-PL2:    NOP
-        LOOP    PL2
-        DEC     DI
-        JNZ     PLAY
-        RET`,
-
-'Piezo Test': `; Piezo buzzer test — continuous beep on physical DigiAC2000
-; Tests UPORT1 bit 5 toggle (piezo pin)
-; If no sound, try changing the bit (0-7)
-        ORG     0100H
-        INCLUDE PATCALLS.INC
-
-        ; Set Port 1 direction: all output
-        MOV     AL,0FFH
-        OUT     UPORT1CTL,AL
-
-        ; Print "BEEP" on serial to confirm running
-        MOV     BL,'B'
-        MOV     AH,WRCHAR
-        INT     28H
-        MOV     BL,'E'
-        MOV     AH,WRCHAR
-        INT     28H
-        MOV     BL,'E'
-        MOV     AH,WRCHAR
-        INT     28H
-        MOV     BL,'P'
-        MOV     AH,WRCHAR
-        INT     28H
-
-        ; Toggle ALL bits of UPORT1 — one of them is the piezo
-        MOV     DX,500          ; 500 full cycles (~1 second)
-BEEP:   MOV     AL,0FFH         ; all bits high
-        OUT     UPORT1,AL
-        MOV     CX,600          ; half-period delay
-W1:     NOP
-        LOOP    W1
-        MOV     AL,00H          ; all bits low
-        OUT     UPORT1,AL
-        MOV     CX,600          ; half-period delay
-W2:     NOP
-        LOOP    W2
-        DEC     DX
-        JNZ     BEEP
-
-        ; Done
-        MOV     AL,00H
-        OUT     UPORT1,AL
-        MOV     AH,EXIT
-        INT     28H`,
-
-'Port Bit Scanner': `; Toggles each UPORT1 bit individually to find the piezo
-; Beeps bit 0, then bit 1, ... up to bit 7
-; Listen which bit makes sound!
-        ORG     0100H
-        INCLUDE PATCALLS.INC
-
-        MOV     AL,0FFH
-        OUT     UPORT1CTL,AL       ; all output
-
-        MOV     BL,0                ; start with bit 0
-NEXTBIT:
-        ; Print which bit we are testing
-        PUSH    BX
-        MOV     AH,WRBYTE           ; print bit number
-        INT     28H
-        MOV     BL,' '
-        MOV     AH,WRCHAR
-        INT     28H
-        POP     BX
-
-        ; Calculate bit mask: 1 << BL
-        MOV     CL,BL
-        MOV     AL,1
-        SHL     AL,CL
-        MOV     AH,AL               ; AH = bit mask
-
-        ; Toggle this bit 300 times (~0.5 sec beep)
-        MOV     DX,300
-TONE:   MOV     AL,AH
-        OUT     UPORT1,AL
-        MOV     CX,600
-D1:     NOP
-        LOOP    D1
-        MOV     AL,00H
-        OUT     UPORT1,AL
-        MOV     CX,600
-D2:     NOP
-        LOOP    D2
-        DEC     DX
-        JNZ     TONE
-
-        ; Silence gap between bits
-        MOV     AL,00H
-        OUT     UPORT1,AL
-        MOV     BX,500
-        MOV     AH,WTNMS
-        INT     28H
-
-        ; Next bit
-        INC     BL
-        CMP     BL,8
-        JB      NEXTBIT
-
-        MOV     AH,EXIT
-        INT     28H`,
 };
