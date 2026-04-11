@@ -1,0 +1,110 @@
+/* ============================================================
+   PAT-286 Design Tokens — Colors, typography, spacing, radii
+   ============================================================ */
+
+:root {
+  /* Surface colors */
+  --bg: #0f1117;
+  --bg2: #161822;
+  --bg3: #1c1f2e;
+  --bg4: #232738;
+
+  /* Text hierarchy */
+  --text: #c9cdd8;
+  --text2: #8690a8;
+  --text3: #5a6378;
+
+  /* Borders */
+  --brd: #2a2f42;
+  --brd2: #353b52;
+
+  /* Accent palette */
+  --acc: #ff6b6b;
+  --acc2: #ee5a5a;
+  --acc-l: rgba(255,107,107,.12);
+  --blu: #61afef;
+  --blu-l: rgba(97,175,239,.12);
+  --grn: #98c379;
+  --grn-l: rgba(152,195,121,.12);
+  --amb: #e5c07b;
+  --amb-l: rgba(229,192,123,.12);
+  --red: #e06c75;
+  --red-l: rgba(224,108,117,.12);
+  --pur: #c678dd;
+  --pur-l: rgba(198,120,221,.12);
+  --cyn: #56b6c2;
+  --cyn-l: rgba(86,182,194,.12);
+
+  /* Typography */
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Source Sans 3', sans-serif;
+  --serif: 'Crimson Pro', serif;
+
+  /* Font sizes (4-step scale) */
+  --fs-xs: 9px;
+  --fs-sm: 10px;
+  --fs-md: 11px;
+  --fs-base: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-2xl: 22px;
+
+  /* Spacing (4px grid) */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 10px;
+  --sp-6: 12px;
+  --sp-8: 16px;
+  --sp-10: 20px;
+  --sp-12: 24px;
+
+  /* Border radius */
+  --r: 4px;
+  --r-sm: 2px;
+  --r-md: 6px;
+  --r-lg: 10px;
+
+  /* Transitions */
+  --tr-fast: .08s ease;
+  --tr-base: .12s ease;
+  --tr-slow: .2s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.3);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.3);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,.4);
+
+  /* Line height */
+  --lh-code: 19px;
+}
+
+/* Light theme overrides */
+:root[data-theme='light'] {
+  --bg: #f5f5f0;
+  --bg2: #ffffff;
+  --bg3: #eeeee8;
+  --bg4: #e2e2dc;
+  --text: #1a1a1a;
+  --text2: #555;
+  --text3: #888;
+  --brd: #d0d0c8;
+  --brd2: #bbb;
+  --acc: #c0392b;
+  --acc2: #a93226;
+  --acc-l: rgba(192,57,43,.1);
+  --blu: #2471a3;
+  --blu-l: rgba(36,113,163,.1);
+  --grn: #27ae60;
+  --grn-l: rgba(39,174,96,.1);
+  --amb: #b7950b;
+  --amb-l: rgba(183,149,11,.1);
+  --red: #c0392b;
+  --red-l: rgba(192,57,43,.1);
+  --pur: #8e44ad;
+  --pur-l: rgba(142,68,173,.1);
+  --cyn: #17a589;
+  --cyn-l: rgba(23,165,137,.1);
+}

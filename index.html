@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAT-286 Virtual Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="styles/variables.css?v=7">
+<link rel="stylesheet" href="styles/base.css?v=7">
+<link rel="stylesheet" href="styles/editor.css?v=7">
+<link rel="stylesheet" href="styles/panels.css?v=7">
+<link rel="stylesheet" href="styles/peripherals.css?v=7">
+<link rel="stylesheet" href="styles/modals.css?v=7">
+<link rel="stylesheet" href="styles/terminal.css?v=7">
 </head>
 <body>
 <div class="hd">
@@ -154,32 +160,34 @@
 <div id="portsOv" class="exp-ov" hidden></div>
 
 <!-- Core -->
-<script src="core/cpu/core.js?v=6"></script>
-<script src="core/cpu/int28.js?v=6"></script>
-<script src="core/cpu/exec.js?v=6"></script>
-<script src="core/assembler/parser.js?v=6"></script>
-<script src="core/assembler/encoder.js?v=6"></script>
-<script src="core/io/state.js?v=6"></script>
-<script src="core/io/ports.js?v=6"></script>
-<script src="core/transpiler/compiler.js?v=6"></script>
-<script src="core/transpiler/bridge.js?v=6"></script>
+<script src="core/cpu/core.js?v=7"></script>
+<script src="core/cpu/int28.js?v=7"></script>
+<script src="core/cpu/decode.js?v=7"></script>
+<script src="core/cpu/alu.js?v=7"></script>
+<script src="core/cpu/exec.js?v=7"></script>
+<script src="core/assembler/parser.js?v=7"></script>
+<script src="core/assembler/encoder.js?v=7"></script>
+<script src="core/io/state.js?v=7"></script>
+<script src="core/io/ports.js?v=7"></script>
+<script src="core/transpiler/compiler.js?v=7"></script>
+<script src="core/transpiler/bridge.js?v=7"></script>
 <!-- App -->
-<script src="app/examples.js?v=6"></script>
-<script src="app/files/core.js?v=6"></script>
-<script src="app/files/tree.js?v=6"></script>
-<script src="app/guide/data.js?v=6"></script>
-<script src="app/guide/ui.js?v=6"></script>
-<script src="app/serial/core.js?v=6"></script>
-<script src="app/serial/upload.js?v=6"></script>
-<script src="app/highlighter/constants.js?v=6"></script>
-<script src="app/highlighter/render.js?v=6"></script>
-<script src="app/panels/layout.js?v=6"></script>
-<script src="app/panels/display.js?v=6"></script>
-<script src="app/render/core.js?v=6"></script>
-<script src="app/render/io.js?v=6"></script>
-<script src="app/main/sim.js?v=6"></script>
-<script src="app/main/editor.js?v=6"></script>
-<script src="app/editor/tooltips.js?v=6"></script>
-<script src="app/editor/features.js?v=6"></script>
+<script src="app/examples.js?v=7"></script>
+<script src="app/files/core.js?v=7"></script>
+<script src="app/files/tree.js?v=7"></script>
+<script src="app/guide/data.js?v=7"></script>
+<script src="app/guide/ui.js?v=7"></script>
+<script src="app/serial/core.js?v=7"></script>
+<script src="app/serial/upload.js?v=7"></script>
+<script src="app/highlighter/constants.js?v=7"></script>
+<script src="app/highlighter/render.js?v=7"></script>
+<script src="app/panels/layout.js?v=7"></script>
+<script src="app/panels/display.js?v=7"></script>
+<script src="app/render/core.js?v=7"></script>
+<script src="app/render/io.js?v=7"></script>
+<script src="app/main/sim.js?v=7"></script>
+<script src="app/main/editor.js?v=7"></script>
+<script src="app/editor/tooltips.js?v=7"></script>
+<script src="app/editor/features.js?v=7"></script>
 </body>
 </html>
