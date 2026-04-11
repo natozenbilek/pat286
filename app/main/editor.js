@@ -193,6 +193,7 @@ function motorAnimLoop() {
 // === INIT ===
 applyTheme(currentTheme);
 buildRightPanel();
+initCollapsibleCards();
 enhanceMemoryView();
 loadExamples().then(() => { buildExDropdown(); renderAll(); });
 document.body.addEventListener('click', initAudio, {once: true});

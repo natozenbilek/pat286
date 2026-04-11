@@ -19,22 +19,22 @@
   --brd: #252a3c;
   --brd2: #333952;
 
-  /* Accent palette */
-  --acc: #ff6b6b;
-  --acc2: #ee5a5a;
-  --acc-l: rgba(255,107,107,.1);
-  --blu: #5ba4e6;
-  --blu-l: rgba(91,164,230,.1);
-  --grn: #7ec96a;
-  --grn-l: rgba(126,201,106,.1);
-  --amb: #e5c07b;
-  --amb-l: rgba(229,192,123,.1);
-  --red: #e06c75;
-  --red-l: rgba(224,108,117,.1);
-  --pur: #c678dd;
-  --pur-l: rgba(198,120,221,.1);
-  --cyn: #56b6c2;
-  --cyn-l: rgba(86,182,194,.1);
+  /* Accent palette — muted, Google-style */
+  --acc: #ea8685;
+  --acc2: #d47170;
+  --acc-l: rgba(234,134,133,.1);
+  --blu: #8ab4f8;
+  --blu-l: rgba(138,180,248,.1);
+  --grn: #81c995;
+  --grn-l: rgba(129,201,149,.1);
+  --amb: #fdd663;
+  --amb-l: rgba(253,214,99,.08);
+  --red: #f28b82;
+  --red-l: rgba(242,139,130,.1);
+  --pur: #c58af9;
+  --pur-l: rgba(197,138,249,.1);
+  --cyn: #78d9ec;
+  --cyn-l: rgba(120,217,236,.08);
 
   /* Typography */
   --mono: 'IBM Plex Mono', monospace;
@@ -43,8 +43,8 @@
 
   /* Font sizes — modular scale */
   --fs-xs: 9px;
-  --fs-sm: 10px;
-  --fs-md: 11px;
+  --fs-sm: 10.5px;
+  --fs-md: 11.5px;
   --fs-base: 13px;
   --fs-lg: 14px;
   --fs-xl: 16px;

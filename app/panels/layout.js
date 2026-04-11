@@ -2,6 +2,14 @@
 // PAT-286 Panels Layout — Right panel HTML generator
 // ============================================================
 
+function initCollapsibleCards() {
+  document.querySelectorAll('.cd .ch').forEach(ch => {
+    ch.addEventListener('click', () => {
+      ch.closest('.cd').classList.toggle('collapsed');
+    });
+  });
+}
+
 function buildRightPanel() {
   let rp = document.getElementById('rpContent');
   if (!rp) return;

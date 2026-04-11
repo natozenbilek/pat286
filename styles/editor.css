@@ -115,14 +115,14 @@
   tab-size: 8;
 }
 #ed.hl-active { color: transparent; caret-color: var(--cyn); }
-.hl-k { color: #C678DD; }
-.hl-r { color: #E06C75; }
-.hl-n { color: #D19A66; }
-.hl-s { color: #98C379; }
-.hl-c { color: #5C6370; font-style: italic; }
-.hl-d { color: #61AFEF; }
-.hl-l { color: #E5C07B; }
-.hl-p { color: #56B6C2; }
+.hl-k { color: #c58af9; }
+.hl-r { color: #ea8685; }
+.hl-n { color: #d4a76a; }
+.hl-s { color: #81c995; }
+.hl-c { color: #5c6680; font-style: italic; }
+.hl-d { color: #8ab4f8; }
+.hl-l { color: #fdd663; }
+.hl-p { color: #78d9ec; }
 .hl-occ { background: rgba(229,192,123,.18); border-bottom: 1px solid var(--amb); border-radius: var(--r-sm); }
 
 /* === GHOST TEXT AUTOCOMPLETE === */
