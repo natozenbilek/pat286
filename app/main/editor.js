@@ -194,6 +194,5 @@ function motorAnimLoop() {
 applyTheme(currentTheme);
 buildRightPanel();
 enhanceMemoryView();
-buildExDropdown();
-renderAll();
+loadExamples().then(() => { buildExDropdown(); renderAll(); });
 document.body.addEventListener('click', initAudio, {once: true});

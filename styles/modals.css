@@ -11,8 +11,8 @@
   align-items: center;
   justify-content: center;
   padding: var(--sp-10);
-  background: rgba(15,17,23,.7);
-  backdrop-filter: blur(4px);
+  background: rgba(8,10,14,.75);
+  backdrop-filter: blur(8px);
 }
 .exp-ov[hidden] { display: none !important; }
 .exp-pan {
@@ -20,9 +20,9 @@
   width: 100%;
   max-height: 80vh;
   background: var(--bg2);
-  border: 1px solid var(--brd);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--brd2);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -80,8 +80,8 @@
   align-items: center;
   justify-content: center;
   padding: var(--sp-10);
-  background: rgba(15,17,23,.7);
-  backdrop-filter: blur(4px);
+  background: rgba(8,10,14,.75);
+  backdrop-filter: blur(8px);
 }
 .guide-ov[hidden] { display: none !important; }
 .guide-pan {
@@ -89,8 +89,8 @@
   width: 100%;
   max-height: 85vh;
   background: var(--bg2);
-  border: 1px solid var(--brd);
-  border-radius: var(--r-md);
+  border: 1px solid var(--brd2);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;

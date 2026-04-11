@@ -3,44 +3,45 @@
    ============================================================ */
 
 :root {
-  /* Surface colors */
-  --bg: #0f1117;
-  --bg2: #161822;
-  --bg3: #1c1f2e;
-  --bg4: #232738;
+  /* Surface colors — 5-step elevation */
+  --bg: #0d0f14;
+  --bg2: #14161e;
+  --bg3: #1a1d28;
+  --bg4: #222636;
+  --bg5: #2a2e40;
 
   /* Text hierarchy */
-  --text: #c9cdd8;
-  --text2: #8690a8;
-  --text3: #5a6378;
+  --text: #d4d8e4;
+  --text2: #8892aa;
+  --text3: #5c6680;
 
   /* Borders */
-  --brd: #2a2f42;
-  --brd2: #353b52;
+  --brd: #252a3c;
+  --brd2: #333952;
 
   /* Accent palette */
   --acc: #ff6b6b;
   --acc2: #ee5a5a;
-  --acc-l: rgba(255,107,107,.12);
-  --blu: #61afef;
-  --blu-l: rgba(97,175,239,.12);
-  --grn: #98c379;
-  --grn-l: rgba(152,195,121,.12);
+  --acc-l: rgba(255,107,107,.1);
+  --blu: #5ba4e6;
+  --blu-l: rgba(91,164,230,.1);
+  --grn: #7ec96a;
+  --grn-l: rgba(126,201,106,.1);
   --amb: #e5c07b;
-  --amb-l: rgba(229,192,123,.12);
+  --amb-l: rgba(229,192,123,.1);
   --red: #e06c75;
-  --red-l: rgba(224,108,117,.12);
+  --red-l: rgba(224,108,117,.1);
   --pur: #c678dd;
-  --pur-l: rgba(198,120,221,.12);
+  --pur-l: rgba(198,120,221,.1);
   --cyn: #56b6c2;
-  --cyn-l: rgba(86,182,194,.12);
+  --cyn-l: rgba(86,182,194,.1);
 
   /* Typography */
   --mono: 'IBM Plex Mono', monospace;
   --sans: 'Source Sans 3', sans-serif;
   --serif: 'Crimson Pro', serif;
 
-  /* Font sizes (4-step scale) */
+  /* Font sizes — modular scale */
   --fs-xs: 9px;
   --fs-sm: 10px;
   --fs-md: 11px;
@@ -65,17 +66,19 @@
   --r-sm: 2px;
   --r-md: 6px;
   --r-lg: 10px;
+  --r-full: 9999px;
 
-  /* Transitions */
-  --tr-fast: .08s ease;
-  --tr-base: .12s ease;
-  --tr-slow: .2s ease;
+  /* Transitions — slightly slower for polish */
+  --tr-fast: .1s ease;
+  --tr-base: .15s ease;
+  --tr-slow: .25s ease-out;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 6px rgba(0,0,0,.2);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.3);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,.3);
-  --shadow-xl: 0 20px 60px rgba(0,0,0,.4);
+  /* Shadows — layered for depth */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.15);
+  --shadow-md: 0 2px 4px rgba(0,0,0,.3), 0 6px 16px rgba(0,0,0,.2);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,.3), 0 16px 48px rgba(0,0,0,.25);
+  --shadow-xl: 0 8px 16px rgba(0,0,0,.3), 0 24px 64px rgba(0,0,0,.35);
+  --shadow-inset: inset 0 1px 2px rgba(0,0,0,.25);
 
   /* Line height */
   --lh-code: 19px;
@@ -83,10 +86,11 @@
 
 /* Light theme overrides */
 :root[data-theme='light'] {
-  --bg: #f5f5f0;
+  --bg: #f6f6f1;
   --bg2: #ffffff;
-  --bg3: #eeeee8;
-  --bg4: #e2e2dc;
+  --bg3: #eeeeea;
+  --bg4: #e4e4de;
+  --bg5: #d8d8d2;
   --text: #1a1a1a;
   --text2: #555;
   --text3: #888;
@@ -94,17 +98,21 @@
   --brd2: #bbb;
   --acc: #c0392b;
   --acc2: #a93226;
-  --acc-l: rgba(192,57,43,.1);
+  --acc-l: rgba(192,57,43,.08);
   --blu: #2471a3;
-  --blu-l: rgba(36,113,163,.1);
+  --blu-l: rgba(36,113,163,.08);
   --grn: #27ae60;
-  --grn-l: rgba(39,174,96,.1);
+  --grn-l: rgba(39,174,96,.08);
   --amb: #b7950b;
-  --amb-l: rgba(183,149,11,.1);
+  --amb-l: rgba(183,149,11,.08);
   --red: #c0392b;
-  --red-l: rgba(192,57,43,.1);
+  --red-l: rgba(192,57,43,.08);
   --pur: #8e44ad;
-  --pur-l: rgba(142,68,173,.1);
+  --pur-l: rgba(142,68,173,.08);
   --cyn: #17a589;
-  --cyn-l: rgba(23,165,137,.1);
+  --cyn-l: rgba(23,165,137,.08);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.1), 0 12px 40px rgba(0,0,0,.08);
+  --shadow-inset: inset 0 1px 2px rgba(0,0,0,.06);
 }

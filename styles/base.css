@@ -21,16 +21,19 @@ body {
   display: flex;
   align-items: center;
   gap: var(--sp-5);
-  padding: var(--sp-3) var(--sp-6);
+  padding: var(--sp-4) var(--sp-8);
   border-bottom: 1px solid var(--brd);
   background: var(--bg2);
-  min-height: 40px;
+  min-height: 44px;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  position: relative;
 }
 .hd h1 { font-family: var(--serif); font-size: var(--fs-xl); font-weight: 500; letter-spacing: -.01em; white-space: nowrap; }
 .hd h1 b { color: var(--acc); font-weight: 600; }
 .hd h1 em { font-style: normal; color: var(--text2); font-size: 12px; margin-left: var(--sp-2); }
-.sep { width: 1px; height: 16px; background: var(--brd); }
+.sep { width: 1px; height: 18px; background: var(--brd); flex-shrink: 0; }
 .hd-r { margin-left: auto; display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
 
 /* === BUTTONS === */
@@ -43,37 +46,52 @@ body {
   background: var(--bg3);
   color: var(--text2);
   cursor: pointer;
-  transition: background var(--tr-base), color var(--tr-base), border-color var(--tr-base), transform var(--tr-fast);
+  transition: all var(--tr-base);
   white-space: nowrap;
   letter-spacing: .02em;
-  min-height: 26px;
+  min-height: 28px;
   outline: none;
+  text-shadow: none;
 }
-.b:hover { background: var(--bg4); color: var(--text); border-color: var(--brd2); }
-.b:active { transform: scale(.97); }
-.b:focus-visible { box-shadow: 0 0 0 2px var(--blu-l), 0 0 0 3px var(--blu); }
-.b:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-.bp { background: var(--bg4); color: var(--grn); border-color: var(--grn); font-weight: 600; }
-.bp:hover { background: var(--grn); color: #111; }
-.bg { background: var(--grn); color: #111; border-color: var(--grn); }
-.bg:hover { opacity: .9; }
-.b-blu { background: var(--blu); color: #111; border-color: var(--blu); }
-.b-blu:hover { opacity: .9; }
+.b:hover { background: var(--bg4); color: var(--text); border-color: var(--brd2); box-shadow: var(--shadow-sm); }
+.b:active { transform: scale(.97); box-shadow: var(--shadow-inset); }
+.b:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--blu); }
+.b:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+.bp { background: var(--bg4); color: var(--grn); border-color: rgba(126,201,106,.4); font-weight: 600; }
+.bp:hover { background: var(--grn); color: #111; box-shadow: 0 0 12px rgba(126,201,106,.2); }
+.bg { background: var(--grn); color: #111; border-color: var(--grn); font-weight: 600; }
+.bg:hover { box-shadow: 0 0 12px rgba(126,201,106,.25); }
+.b-blu { background: var(--blu); color: #111; border-color: var(--blu); font-weight: 600; }
+.b-blu:hover { box-shadow: 0 0 12px rgba(91,164,230,.25); }
 
 /* === STATUS PILL === */
 .pill {
   font-family: var(--mono);
   font-size: var(--fs-sm);
-  padding: 3px var(--sp-4);
-  border-radius: var(--r-lg);
+  padding: 3px var(--sp-5) 3px var(--sp-4);
+  border-radius: var(--r-full);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  gap: var(--sp-2);
+  letter-spacing: .03em;
+}
+.pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 .p-rdy { background: var(--blu-l); color: var(--blu); }
+.p-rdy::before { background: var(--blu); box-shadow: 0 0 6px var(--blu); }
 .p-run { background: var(--grn-l); color: var(--grn); }
+.p-run::before { background: var(--grn); box-shadow: 0 0 6px var(--grn); animation: pill-pulse 1.5s ease-in-out infinite; }
 .p-hlt { background: var(--amb-l); color: var(--amb); }
+.p-hlt::before { background: var(--amb); }
 .p-err { background: var(--red-l); color: var(--red); }
+.p-err::before { background: var(--red); box-shadow: 0 0 6px var(--red); }
+@keyframes pill-pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 
 /* === MAIN 3-COL LAYOUT === */
 .mn {
@@ -149,8 +167,8 @@ body {
   text-overflow: ellipsis;
   line-height: 22px;
 }
-.fb-file:hover { background: rgba(255,255,255,.04); color: var(--text); }
-.fb-file.active { background: var(--blu-l); color: var(--text); }
+.fb-file:hover { background: rgba(255,255,255,.05); color: var(--text); }
+.fb-file.active { background: var(--blu-l); color: var(--text); border-left: 2px solid var(--blu); padding-left: 18px; }
 .fb-file-icon { display: none; }
 .fb-ext { color: var(--text3); margin-left: 0; }
 
@@ -158,8 +176,8 @@ body {
 .sim-bar {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: 5px var(--sp-4);
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
   border-bottom: 1px solid var(--brd);
   background: var(--bg3);
   flex-shrink: 0;
