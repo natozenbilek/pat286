@@ -59,10 +59,10 @@ async function uploadHexAndRun(machineCode, label) {
   updateSerialTerminal();
 }
 
-// === METHOD 2: C command + ESC exit ===
-async function uploadCmdAndRun(machineCode, label, startAddr) {
+// === METHOD 2: C command + ESC exit (shared core) ===
+async function uploadViaC(machineCode, label, opts = {}) {
   if (!serialConnected) { sLog('Connect to device first!', 1); return; }
-  let addr = (startAddr || 0x0100);
+  let addr = (opts.startAddr || 0x0100);
   let addrStr = addr.toString(16).toUpperCase().padStart(4, '0');
 
   serialRxLog += '\n=== ' + (label || 'C CMD') + ' (C + ESC exit) ===\n';
@@ -113,68 +113,23 @@ async function uploadCmdAndRun(machineCode, label, startAddr) {
   await sleep(200);
   serialRxLog += 'TX: G ' + addrStr + '\n';
   updateSerialTerminal();
-  let gotG = await sendAndWait('G ' + addrStr + '\r\n', PAT_PROMPT, 8000);
-  serialRxLog += gotG ? '=== SUCCESS ===\n' : '--- G TIMEOUT ---\n';
+
+  if (opts.waitForHalt !== false) {
+    let gotG = await sendAndWait('G ' + addrStr + '\r\n', PAT_PROMPT, 8000);
+    serialRxLog += gotG ? '=== SUCCESS ===\n' : '--- G TIMEOUT ---\n';
+  } else {
+    await serialSendRaw('G ' + addrStr + '\r\n');
+    serialRxLog += '=== RUNNING (press RESET to stop) ===\n';
+  }
   updateSerialTerminal();
 }
 
-// === Upload + G without waiting (for infinite-loop programs) ===
+async function uploadCmdAndRun(machineCode, label, startAddr) {
+  await uploadViaC(machineCode, label, { startAddr, waitForHalt: true });
+}
+
 async function uploadCmdAndRunNoWait(machineCode, label) {
-  if (!serialConnected) { sLog('Connect to device first!', 1); return; }
-  let addr = 0x0100;
-  let addrStr = addr.toString(16).toUpperCase().padStart(4, '0');
-
-  serialRxLog += '\n=== ' + (label || 'C CMD') + ' (C + ESC exit) ===\n';
-  updateSerialTerminal();
-
-  let gotP = await sendAndWait('\r\n', PAT_PROMPT, 2000);
-  serialRxLog += gotP ? '[OK] PAT:\n' : '[WARN] No PAT: prompt\n';
-  updateSerialTerminal();
-  if (!gotP) return;
-
-  serialRxLog += 'TX: C ' + addrStr + '\n';
-  updateSerialTerminal();
-  let gotC = await sendAndWait('C ' + addrStr + '\r\n', addrStr, 3000);
-  if (!gotC) {
-    serialRxLog += '[WARN] No response to C command\n';
-    updateSerialTerminal();
-    return;
-  }
-  await sleep(200);
-
-  for (let i = 0; i < machineCode.length; i++) {
-    let val = machineCode[i].toString(16).toUpperCase().padStart(2, '0');
-    serialRxLog += val + ' ';
-    updateSerialTerminal();
-    let gotNext = await sendAndWait(val + '\r\n', ':', 2000);
-    if (!gotNext && i < machineCode.length - 1) {
-      serialRxLog += '[!] ';
-      updateSerialTerminal();
-    }
-    await sleep(50);
-  }
-
-  serialRxLog += '\n[OK] ' + machineCode.length + ' bytes written.\n';
-  updateSerialTerminal();
-
-  serialRxLog += '[...] Exiting C mode (ESC+CR)...\n';
-  updateSerialTerminal();
-  await serialSendBytes([0x1B, 0x0D]);
-
-  let gotExit = await sendAndWait('', PAT_PROMPT, 3000);
-  if (!gotExit) {
-    gotExit = await sendAndWait('\r\n', PAT_PROMPT, 2000);
-  }
-  serialRxLog += gotExit ? '[OK] PAT:\n' : '[WARN] No PAT: prompt received\n';
-  updateSerialTerminal();
-  if (!gotExit) return;
-
-  await sleep(200);
-  serialRxLog += 'TX: G ' + addrStr + '\n';
-  updateSerialTerminal();
-  await serialSendRaw('G ' + addrStr + '\r\n');
-  serialRxLog += '=== RUNNING (press RESET to stop) ===\n';
-  updateSerialTerminal();
+  await uploadViaC(machineCode, label, { waitForHalt: false });
 }
 
 // === LED test programs ===

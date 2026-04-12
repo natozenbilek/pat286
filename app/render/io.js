@@ -4,9 +4,9 @@
 // ============================================================
 
 function renderAppModule() {
-  let p1 = ioPorts[0x90], p2 = ioPorts[0x92];
-  let p1dir = ioPorts[0x88];
-  let p2mode = ioPorts[0x86];
+  let p1 = ioPorts[PORT_PORT1], p2 = ioPorts[PORT_PORT2];
+  let p1dir = ioPorts[PORT_P1CTL];
+  let p2mode = ioPorts[PORT_MODE];
 
   for (let [gid, val, dir] of [['ledP1svg', p1, p1dir], ['ledP2svg', p2, p2mode === 0x03 ? 0xFF : 0]]) {
     let g = document.getElementById(gid);
@@ -70,7 +70,7 @@ function renderAppModule() {
     else if (!piezoOn) { pzFreqEl.textContent = ''; piezoFreq = 0; }
   }
 
-  let utxOn = (p1 >> 6) & 1;
+  let utxOn = (p1 >> P1_UTX) & 1;
   let utxCirc = document.getElementById('utxCirc');
   let urxCirc = document.getElementById('urxCirc');
   let ultraWaves = document.getElementById('ultraWaves');
@@ -117,7 +117,7 @@ function renderAppModule() {
   let adcBsyEl = document.getElementById('adcBsy');
   let adcRdEl = document.getElementById('adcRd');
   if (adcBsyEl) adcBsyEl.textContent = 'RDY';
-  if (adcRdEl) adcRdEl.textContent = (p1 >> 3) & 1 ? '1' : '0';
+  if (adcRdEl) adcRdEl.textContent = (p1 >> P1_RD) & 1 ? '1' : '0';
 
   let tmrInfo = document.getElementById('tmrInfo');
   let tmrClk = document.getElementById('tmrClk');
@@ -136,8 +136,8 @@ function renderAppModule() {
 
   let portState = document.getElementById('portState');
   let portData = document.getElementById('portData');
-  if (portState) portState.textContent = 'P1CTL:' + hex8(ioPorts[0x88]) + ' MODE:' + hex8(ioPorts[0x86]) + ' CREG1:' + hex8(ioPorts[0x80]) + ' IRQEN:' + hex8(ioPorts[0x8A]);
-  if (portData) portData.textContent = 'PORT1:' + hex8(p1) + ' PORT2:' + hex8(p2) + ' TIMER:' + hex8(timerValue) + ' STATUS:' + hex8(ioPorts[0x9E]);
+  if (portState) portState.textContent = 'P1CTL:' + hex8(ioPorts[PORT_P1CTL]) + ' MODE:' + hex8(ioPorts[PORT_MODE]) + ' CREG1:' + hex8(ioPorts[PORT_CREG1]) + ' IRQEN:' + hex8(ioPorts[PORT_IRQEN]);
+  if (portData) portData.textContent = 'PORT1:' + hex8(p1) + ' PORT2:' + hex8(p2) + ' TIMER:' + hex8(timerValue) + ' STATUS:' + hex8(ioPorts[PORT_STATUS]);
 }
 
 function renderIOTimeline() {
@@ -167,8 +167,8 @@ function renderPortMonitor() {
   let el = document.getElementById('portMon');
   if (!el) return;
   const ports = [
-    ['PORT1', 0x90], ['PORT2', 0x92], ['P1CTL', 0x88], ['MODE', 0x86],
-    ['CREG1', 0x80], ['IRQEN', 0x8A], ['TMR1', 0x94], ['STATUS', 0x9E]
+    ['PORT1', PORT_PORT1], ['PORT2', PORT_PORT2], ['P1CTL', PORT_P1CTL], ['MODE', PORT_MODE],
+    ['CREG1', PORT_CREG1], ['IRQEN', PORT_IRQEN], ['TMR1', PORT_TIMER], ['STATUS', PORT_STATUS]
   ];
   let html = '<table class="pm-tbl"><tr><th>Port</th><th>Addr</th><th>Hex</th><th>Dec</th><th>Binary</th></tr>';
   for (let [name, addr] of ports) {

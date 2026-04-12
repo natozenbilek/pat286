@@ -339,7 +339,10 @@ function parseMemExpr(expr, wide, segOvr, defs, lbls, addr) {
 }
 
 function segPrefixBytes(op) {
-  if (op && op.segOvr !== undefined && op.segOvr !== 3) return [[0x26, 0x2E, 0x36, 0x3E][op.segOvr]];
+  if (!op || op.segOvr === undefined) return [];
+  let bpBased = (op.rm === 2 || op.rm === 3 || (op.rm === 6 && op.mod !== 0));
+  let defaultSeg = bpBased ? 2 : 3; // SS=2, DS=3
+  if (op.segOvr !== defaultSeg) return [[0x26, 0x2E, 0x36, 0x3E][op.segOvr]];
   return [];
 }
 

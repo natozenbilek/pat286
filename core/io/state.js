@@ -2,14 +2,50 @@
 // PAT-286 I/O State — Port array, peripheral state, audio, timer
 // ============================================================
 
+// === I/O PORT ADDRESS MAP ===
+const PORT_PIC_CMD   = 0x40;  // PIC command register (EOI)
+const PORT_PIC_MASK  = 0x42;  // PIC interrupt mask
+const PORT_CREG1     = 0x80;  // Control register 1
+const PORT_TIMER_CLK = 0x80;  // Timer clock select (alias)
+const PORT_CREG2     = 0x82;  // Control register 2
+const PORT_CREG3     = 0x84;  // Control register 3
+const PORT_MODE      = 0x86;  // Mode register (DAC/ADC mode select)
+const PORT_P1CTL     = 0x88;  // Port 1 direction control
+const PORT_IRQEN     = 0x8A;  // IRQ enable register
+const PORT_IRQACK    = 0x8C;  // IRQ acknowledge (read clears pending)
+const PORT_PORT1     = 0x90;  // Port 1 data
+const PORT_PORT2     = 0x92;  // Port 2 / Port A data
+const PORT_TIMER     = 0x94;  // Timer reload value
+const PORT_STATUS    = 0x9E;  // Status register
+
+// IRQ bit positions
+const IRQ_IR0 = 0x01;
+const IRQ_IR1 = 0x02;
+const IRQ_IR2 = 0x04;  // Timer interrupt
+
+// Interrupt vector mapping
+const INT_VEC_IR0 = 0x20;
+const INT_VEC_IR1 = 0x21;
+const INT_VEC_IR2 = 0x25;
+
+// Port 1 bit positions
+const P1_EN   = 0;  // Enable
+const P1_WR   = 1;  // ADC write/start
+const P1_BSY  = 2;  // ADC busy
+const P1_RD   = 3;  // ADC read
+const P1_DSC  = 4;  // Disk encoder pulse
+const P1_PZO  = 5;  // Piezo sounder
+const P1_UTX  = 6;  // Ultrasonic TX
+const P1_URX  = 7;  // Ultrasonic RX
+
 // I/O ports (256 ports)
 let ioPorts = new Uint8Array(256);
 let ioLog = [];
 const IO_LOG_MAX = 200;
 
 // Applications module state
-let motorAngle=0, motorSpeed=0, motorDacVal=0;
-let piezoOn=false, piezoLastToggle=0, piezoFreq=0, piezoToggleCount=0;
+let motorAngle=0, motorDacVal=0;
+let piezoOn=false, piezoFreq=0;
 let potValue=128;
 let objectNear=false, opticalBlocked=false;
 let diskPulses=0, diskPhase=0;
@@ -22,7 +58,6 @@ const TIMER_CYCLES_PER_TICK = 50;
 
 // Interrupt system
 let irqPending=0, irqMask=0xFF;
-let intFlag=false;
 
 // Keyboard input queue
 let keyQueue = [];
@@ -64,7 +99,7 @@ function timerTick() {
   if (timerValue > 0) {
     timerValue--;
     if (timerValue === 0) {
-      irqPending |= 0x04; // IR2 (timer interrupt)
+      irqPending |= IRQ_IR2;
     }
   }
 }
@@ -79,10 +114,10 @@ function checkInterrupts() {
       pushW(FLAGS); pushW(CS); pushW(IP);
       sf(IF_, 0); sf(TF, 0);
       let intNum;
-      if (i === 0) intNum = 0x20;
-      else if (i === 1) intNum = 0x21;
-      else if (i === 2) intNum = 0x25;
-      else intNum = 0x20 + i;
+      if (i === 0) intNum = INT_VEC_IR0;
+      else if (i === 1) intNum = INT_VEC_IR1;
+      else if (i === 2) intNum = INT_VEC_IR2;
+      else intNum = INT_VEC_IR0 + i;
       let vecAddr = intNum * 4;
       let newIP = rw(vecAddr);
       let newCS = rw(vecAddr + 2);

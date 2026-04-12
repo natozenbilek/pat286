@@ -13,13 +13,13 @@ function ioWrite(port, val) {
     serialWritePort(port, val);
   }
 
-  if (port === 0x90) handlePort1Write(val);
-  else if (port === 0x92) handlePort2Write(val);
-  else if (port === 0x40) { if (val === 0x20) irqPending = 0; }
-  else if (port === 0x42) irqMask = val;
-  else if (port === 0x80) timerClockSel = val;
-  else if (port === 0x94) { timerValue = val; timerReload = val; timerCount = 0; }
-  else if (port === 0x8A) timerEnabled = val;
+  if (port === PORT_PORT1) handlePort1Write(val);
+  else if (port === PORT_PORT2) handlePort2Write(val);
+  else if (port === PORT_PIC_CMD) { if (val === 0x20) irqPending = 0; }
+  else if (port === PORT_PIC_MASK) irqMask = val;
+  else if (port === PORT_TIMER_CLK) timerClockSel = val;
+  else if (port === PORT_TIMER) { timerValue = val; timerReload = val; timerCount = 0; }
+  else if (port === PORT_IRQEN) timerEnabled = val;
 }
 
 function ioRead(port) {
@@ -31,32 +31,22 @@ function ioRead(port) {
     serialReadPort(port).then(v => { ioPorts[port] = v; });
   }
 
-  if (port === 0x90) val = readPort1();
-  else if (port === 0x92) val = readPort2();
-  else if (port === 0x8C) { irqPending = 0; val = 0; }
+  if (port === PORT_PORT1) val = readPort1();
+  else if (port === PORT_PORT2) val = readPort2();
+  else if (port === PORT_IRQACK) { irqPending = 0; val = 0; }
   ioLog.push({dir:'IN', port, val, ic});
   if(ioLog.length > IO_LOG_MAX) ioLog.shift();
   return val & 0xFF;
 }
 
 function handlePort1Write(val) {
-  let prev = ioPorts[0x90];
-  let pzo = (val >> 5) & 1;
+  let prev = ioPorts[PORT_PORT1];
+  let pzo = (val >> P1_PZO) & 1;
   if (pzo !== (piezoOn ? 1 : 0)) {
     piezoOn = !!pzo;
-    let now = performance.now();
-    if (piezoLastToggle > 0) {
-      let dt = now - piezoLastToggle;
-      if (dt > 0 && dt < 500) {
-        piezoFreq = Math.round(500 / dt);
-        if (piezoOsc) try{piezoOsc.frequency.value=piezoFreq}catch(e){}
-      }
-      piezoToggleCount++;
-    }
-    piezoLastToggle = now;
     if (piezoOn) startPiezo(piezoFreq||1000); else stopPiezo();
   }
-  let wrPrev = (prev >> 1) & 1, wrNow = (val >> 1) & 1;
+  let wrPrev = (prev >> P1_WR) & 1, wrNow = (val >> P1_WR) & 1;
   if (wrPrev && !wrNow) {
     adcBusy = true;
     adcConvCount = 3;
@@ -66,34 +56,31 @@ function handlePort1Write(val) {
 let adcConvCount = 0;
 
 function handlePort2Write(val) {
-  let modeReg = ioPorts[0x86];
+  let modeReg = ioPorts[PORT_MODE];
   if (modeReg === 0x03) motorDacVal = val;
 }
 
 function readPort1() {
-  let dir = ioPorts[0x88];
-  let out = ioPorts[0x90];
+  let dir = ioPorts[PORT_P1CTL];
+  let out = ioPorts[PORT_PORT1];
   let inp = 0;
 
   if (adcBusy) {
     adcConvCount--;
     if (adcConvCount <= 0) adcBusy = false;
-    inp |= 0;
   } else {
-    inp |= (1 << 2);
+    inp |= (1 << P1_BSY); // BSY high = conversion complete
   }
 
   if (motorDacVal > 10) {
     diskPhase += motorDacVal / 50;
     if (diskPhase > 10) { diskPhase = 0; diskPulses++; }
-    inp |= ((diskPulses & 1) << 4);
+    inp |= ((diskPulses & 1) << P1_DSC);
   }
 
-  let utxOn = (out >> 6) & 1;
-  if (utxOn && objectNear) {
-    inp |= 0;
-  } else {
-    inp |= (1 << 7);
+  let utxOn = (out >> P1_UTX) & 1;
+  if (!(utxOn && objectNear)) {
+    inp |= (1 << P1_URX); // URX high = no echo / no object
   }
 
   let result = 0;
@@ -105,14 +92,14 @@ function readPort1() {
 }
 
 function readPort2() {
-  let modeReg = ioPorts[0x86];
+  let modeReg = ioPorts[PORT_MODE];
   if (modeReg === 0x00) {
-    let p1 = ioPorts[0x90];
-    if (!((p1 >> 3) & 1)) {
+    let p1 = ioPorts[PORT_PORT1];
+    if (!((p1 >> P1_RD) & 1)) {
       if (opticalBlocked) return Math.max(0, Math.min(15, potValue >> 4));
       return potValue & 0xFF;
     }
     return 0;
   }
-  return ioPorts[0x92];
+  return ioPorts[PORT_PORT2];
 }

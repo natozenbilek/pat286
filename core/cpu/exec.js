@@ -185,13 +185,12 @@ function execOne() {
       curInstr = `MOV rm,${['ES','CS','SS','DS'][modrm.reg]}`; curDesc = `MOV seg: ${hex16(v)}`;
     }
   }
-  // LEA (8D)
+  // LEA (8D) — load effective address (offset only, no segment)
   else if (op === 0x8D) {
     let modrm = decodeModRM(fetchByte(), true);
-    let addr = calcEA(modrm.mod, modrm.rm, segOvr);
-    let off = addr - ((segOvr !== undefined ? segOvr : DS) << 4);
-    setReg16(modrm.reg, off & 0xFFFF);
-    curInstr = `LEA ${rn16(modrm.reg)}`; curDesc = `LEA: offset=${hex16(off & 0xFFFF)}`;
+    let ea = calcEA(modrm.mod, modrm.rm, 0); // seg=0 so pa(0,off)=off
+    setReg16(modrm.reg, ea & 0xFFFF);
+    curInstr = `LEA ${rn16(modrm.reg)}`; curDesc = `LEA: offset=${hex16(ea & 0xFFFF)}`;
   }
   // NOP (90)
   else if (op === 0x90) {
@@ -417,7 +416,7 @@ function execOne() {
   else if (op === 0xFD) { sf(DF, 1); curInstr = 'STD'; curDesc = 'DF=1'; }
   // XLAT (D7)
   else if (op === 0xD7) {
-    let addr = pa(segOvr !== null ? segOvr : DS, (BX + getAL()) & 0xFFFF);
+    let addr = pa(segOvr !== undefined ? segOvr : DS, (BX + getAL()) & 0xFFFF);
     let v = rb(addr); setAL(v);
     curInstr = 'XLAT'; curDesc = `XLAT: AL=[BX+${hex8(getAL())}]=${hex8(v)}`;
   }

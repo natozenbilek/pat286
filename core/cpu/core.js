@@ -25,10 +25,15 @@ const PATCALLS = {
 const MEM_SIZE = 1048576; // 1MB
 let mem = new Uint8Array(MEM_SIZE);
 
+/** Read byte from physical address */
 function rb(addr) { return mem[addr & 0xFFFFF]; }
+/** Read 16-bit word (little-endian) from physical address */
 function rw(addr) { addr &= 0xFFFFF; return mem[addr] | (mem[(addr+1) & 0xFFFFF] << 8); }
+/** Write byte to physical address */
 function wb(addr, v) { mem[addr & 0xFFFFF] = v & 0xFF; }
+/** Write 16-bit word (little-endian) to physical address */
 function ww(addr, v) { addr &= 0xFFFFF; mem[addr] = v & 0xFF; mem[(addr+1) & 0xFFFFF] = (v >> 8) & 0xFF; }
+/** Compute 20-bit physical address from segment:offset */
 function pa(seg, off) { return ((seg << 4) + off) & 0xFFFFF; }
 
 // === REGISTERS ===
@@ -38,7 +43,9 @@ let IP=0x100;
 let FLAGS=0x0002;
 
 const CF=0,PF=2,AF=4,ZF=6,SF=7,TF=8,IF_=9,DF=10,OF=11;
+/** Get flag bit (CF, PF, AF, ZF, SF, TF, IF_, DF, OF) */
 function gf(b){return(FLAGS>>b)&1}
+/** Set flag bit to 0 or 1 */
 function sf(b,v){if(v)FLAGS|=(1<<b);else FLAGS&=~(1<<b)}
 
 function getAH(){return(AX>>8)&0xFF} function getAL(){return AX&0xFF}
